@@ -7,7 +7,8 @@ type User = {
     avatar: string;
     password: string;
     birthdate: Date;
-    registeredAt: Date;
+    phone: string;
+    address: string;
 };
 
 function createRandomUser(): User {
@@ -18,11 +19,14 @@ function createRandomUser(): User {
         avatar: faker.image.avatar(),
         password: faker.internet.password(),
         birthdate: faker.date.birthdate(),
-        registeredAt: faker.date.past(),
+        phone: faker.phone.number(),
+        address: faker.location.streetAddress(),
     };
 }
 
 export const USERS: User[] = faker.helpers.multiple(createRandomUser, {
     count: 5,
 });
+
+export type {User};
 
