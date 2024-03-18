@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { USERS } from "@/components/ui/carousel/carousel-config";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
@@ -83,7 +83,7 @@ export default function UpdatePage() {
             ...values,
         };
 
-        alert("User updated successfully!");
+        alert("User updated successfully!"); 
     }
 
 
@@ -114,7 +114,7 @@ export default function UpdatePage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Username</FormLabel>
                                         <FormControl className="w-80">
-                                            <Input placeholder="..." {...field} />
+                                            <Input data-testid="input-username-update" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -222,12 +222,14 @@ export default function UpdatePage() {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit" variant={"adding"}>
+                            <Button data-testid="submit-update-btn" type="submit" variant={"adding"}>
                                 <UpdateIcon className="w-5 h-5 mr-1" />
                                 Update
                             </Button>
+                            <Link to={"/"} data-testid="link-home-page" className="text-white underline mt-4 pl-20">Back to home</Link>
                         </form>
                     </Form>
+                   
                 </div>
             </div>
         </>

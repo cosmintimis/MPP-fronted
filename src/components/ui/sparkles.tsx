@@ -37,8 +37,11 @@ export const SparklesCore = (props: ParticlesProps) => {
   }, []);
   const controls = useAnimation();
 
+  const [particlesLoadedd, setParticlesLoadedd] = useState(false);
+
+
   const particlesLoaded = async (container?: Container) => {
-    if (container) {
+    if (!particlesLoadedd && container) {
       console.log(container);
       controls.start({
         opacity: 1,
@@ -47,6 +50,7 @@ export const SparklesCore = (props: ParticlesProps) => {
         },
       });
     }
+    setParticlesLoadedd(true);
   };
 
   return (

@@ -53,7 +53,7 @@ export default function AutoplayCarousel() {
                 </div>
             </div>
             <div className="flex absolute bottom-10 items-center justify-center w-full mt-50 max-h-[50px]">
-                <Link to={'/addUser'} className={buttonVariants({ variant: "adding" })}>Add User</Link>
+                <Link to={'/addUser'} data-testid="add-new-user-page" className={buttonVariants({ variant: "adding" })}>Add User</Link>
             </div>
         </>
     );

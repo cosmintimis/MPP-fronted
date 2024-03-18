@@ -20,14 +20,15 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar as CalendarIcon, User } from "lucide-react";
+import { Calendar as CalendarIcon} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 export default function AddUserPage() {
 
     const [date, setDate] = React.useState<Date | undefined>(new Date());
-    
+
     const formSchema = z.object({
         userId: z.string(),
         username: z.string(),
@@ -81,7 +82,6 @@ export default function AddUserPage() {
         alert("User added successfully");
     }
 
-
     return (
         <>
             <div className="h-[100vh] relative w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
@@ -96,6 +96,7 @@ export default function AddUserPage() {
                         className="w-full h-full"
                         particleColor="#FFFFFF"
                     />
+
                 </div>
                 <div className="flex justify-center z-10">
                     <Form {...form}>
@@ -107,7 +108,7 @@ export default function AddUserPage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">ID</FormLabel>
                                         <FormControl className="w-80">
-                                            <Input placeholder="..." {...field} />
+                                            <Input data-testid="input-userid" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -119,7 +120,7 @@ export default function AddUserPage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Username</FormLabel>
                                         <FormControl className="w-80">
-                                            <Input placeholder="..." {...field} />
+                                            <Input data-testid="input-username" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -131,7 +132,7 @@ export default function AddUserPage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Email</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="..." {...field} />
+                                            <Input data-testid="input-email" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -143,7 +144,7 @@ export default function AddUserPage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Password</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="..." {...field} />
+                                            <Input data-testid="input-password" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -155,7 +156,7 @@ export default function AddUserPage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Avatar</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="..." {...field} />
+                                            <Input data-testid="input-avatar" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -170,6 +171,7 @@ export default function AddUserPage() {
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <Button
+
                                                         variant={"outline"}
                                                         className={cn(
                                                             "w-[320px] justify-start text-left font-normal",
@@ -180,8 +182,9 @@ export default function AddUserPage() {
                                                         {date ? format(date, "PPP") : <span>Pick a date</span>}
                                                     </Button>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0">
+                                                <PopoverContent  className="w-auto p-0">
                                                     <Calendar
+                                                    
                                                         initialFocus
                                                         mode="single"
                                                         selected={field.value}
@@ -210,7 +213,7 @@ export default function AddUserPage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Phone</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="..." {...field} />
+                                            <Input data-testid="input-phone" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -222,18 +225,20 @@ export default function AddUserPage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Address</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="..." {...field} />
+                                            <Input data-testid="input-address" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
                             />
                             <Button
+                                data-testid="submit-add-btn"
                                 className="bg-green-500 hover:bg-green-600 px-10"
                                 type="submit"
                             >
                                 <PlusCircledIcon className="w-6 h-6 mr-1" />
                                 Add
                             </Button>
+                            <Link to={"/"} data-testid="link-home-page" className="text-white underline mt-4 pl-20">Back to home</Link>
                         </form>
                     </Form>
                 </div>
