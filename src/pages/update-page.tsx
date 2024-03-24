@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link, useParams } from "react-router-dom";
-import { USERS } from "@/components/ui/carousel/carousel-config";
+import { USERS } from "@/constants/user";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,16 +24,16 @@ import {
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { displayAlert } from "@/components/ui/custom-alert";
 
 
 export default function UpdatePage() {
     const { userId } = useParams<{ userId: string }>();
 
 
-    const user = USERS.find((user) => user.userId === userId);
+    const user = USERS.find((user) => (user.userId).toString() === userId);
 
     const [date, setDate] = React.useState<Date | undefined>(user?.birthdate);
-
 
 
     const formSchema = z.object({
@@ -42,7 +42,7 @@ export default function UpdatePage() {
         password: z.string(),
         avatar: z.string(),
         birthdate: z.date(),
-        phone: z.string(),
+        rating: z.coerce.number(),
         address: z.string(),
 
     });
@@ -55,13 +55,14 @@ export default function UpdatePage() {
             password: user?.password,
             avatar: user?.avatar,
             birthdate: user?.birthdate,
-            phone: user?.phone,
+            rating: user?.rating,
             address: user?.address,
         },
     });
 
     function updateEntity(values: z.infer<typeof formSchema>) {
-        const index = USERS.findIndex((user) => user.userId === userId);
+        const alertContainer = document.getElementById("alert-container"); 
+        const index = USERS.findIndex((user) => (user.userId).toString() === userId);
         if (index === -1) {
             return;
         }
@@ -71,19 +72,23 @@ export default function UpdatePage() {
             values.email === "" ||
             values.password === "" ||
             typeof values.birthdate === 'undefined' ||
-            values.phone === "" ||
+            !(Number(values.rating) === values.rating && values.rating % 1 !== 0) ||
             values.address === ""
         ) {
-            alert("Please fill all the fields");
+            if (alertContainer) {
+                displayAlert(alertContainer, "warning", "Please fill all the fields");
+                }
             return;
         }
-        
+       
         USERS[index] = {
             ...USERS[index],
             ...values,
         };
-
-        alert("User updated successfully!"); 
+    
+        if(alertContainer){
+            displayAlert(alertContainer, "success", "User added successfully");
+        } 
     }
 
 
@@ -101,6 +106,7 @@ export default function UpdatePage() {
                         particleColor="#FFFFFF"
                     />
                 </div>
+                <div id="alert-container"></div>
                 <div className="flex justify-center z-10">
                     <Form {...form}>
                         <form
@@ -126,7 +132,7 @@ export default function UpdatePage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Email</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="..." {...field} />
+                                            <Input data-testid="input-email-update" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -138,7 +144,8 @@ export default function UpdatePage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Password</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="..." {...field} />
+                                            <Input    
+                                            data-testid="input-password-update"  placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -150,7 +157,7 @@ export default function UpdatePage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white" >Avatar</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="..." {...field} />
+                                            <Input data-testid="input-avatar-update" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -200,12 +207,13 @@ export default function UpdatePage() {
 
                             <FormField
                                 control={form.control}
-                                name="phone"
+                                name="rating"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="flex justify-start text-white">Phone</FormLabel>
+                                        <FormLabel className="flex justify-start text-white">Rating</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="..." {...field} />
+                                            <Input
+                                            type="number" data-testid="input-grade-update"  placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -217,7 +225,7 @@ export default function UpdatePage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Address</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="..." {...field} />
+                                            <Input data-testid="input-address-update" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}

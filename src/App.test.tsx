@@ -5,7 +5,7 @@ import App from "./App";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import UpdatePage from "./pages/update-page";
 import AddUserPage from "./pages/add-user-page";
-import { USERS as initialUserList } from "./components/ui/carousel/carousel-config";
+import { USERS as initialUserList } from "@/constants/user";
 
 const router = createBrowserRouter([
   {
@@ -33,7 +33,7 @@ describe("Test CRUD", async () => {
         <RouterProvider router={router} />
       </React.StrictMode>
     );
-    expect(initialUserList.length).toBe(5);
+    expect(initialUserList.length).toBe(8);
 
     const firstUser = initialUserList[0];
     const allCardsWithSameName = screen.getAllByText(firstUser.username);
@@ -46,7 +46,7 @@ describe("Test CRUD", async () => {
   
     fireEvent.click(deleteButton!);
 
-    expect(initialUserList.length).toBe(4);
+    expect(initialUserList.length).toBe(7);
 
   });
 
@@ -63,22 +63,6 @@ describe("Test CRUD", async () => {
 
     const updateButton = actualFirstUser.parentElement?.querySelector('svg.update-btn');
     const newUserName = "cosmin";
-
-
-    // const inputUsername = screen.getByTestId('input-username-update');
-    // expect(inputUsername).toBeInTheDocument();
-
-    // const newUserName = "cosmin";
-    // fireEvent.change(inputUsername, { target: { value: newUserName } });
-
-
-    // const submitButton = screen.getByTestId('submit-update-btn');
-    // fireEvent.click(submitButton);
-
-    // await new Promise((resolve) => setTimeout(resolve, 100));
-
-    // expect(initialUserList[0].username).toBe(newUserName);
-
 
     act(() => {
       fireEvent.click(updateButton!);
@@ -126,7 +110,7 @@ describe("Test CRUD", async () => {
     const inputEmail = screen.getByTestId('input-email');
     const inputPassword = screen.getByTestId('input-password');
     const inputAvatar = screen.getByTestId('input-avatar');
-    const inputPhone = screen.getByTestId('input-phone');
+    const inputGrade = screen.getByTestId('input-grade');
     const inputAddress = screen.getByTestId('input-address');
     const submitButton = screen.getByTestId('submit-add-btn');
 
@@ -137,7 +121,7 @@ describe("Test CRUD", async () => {
       fireEvent.change(inputEmail, { target: { value: "test@gmail.com" } });
       fireEvent.change(inputPassword, { target: { value: "1234" } });
       fireEvent.change(inputAvatar, { target: { value: "test" } });
-      fireEvent.change(inputPhone, { target: { value: "1234" } });
+      fireEvent.change(inputGrade, { target: { value: "7.5" } });
       fireEvent.change(inputAddress, { target: { value: "test" } });
       fireEvent.click(submitButton);
     }
@@ -145,12 +129,35 @@ describe("Test CRUD", async () => {
 
     await act(async () => { });
   
-    expect(initialUserList.length).toBe(5);
+    expect(initialUserList.length).toBe(8);
 
     /// return to home page
     const linkHomePage = screen.getByTestId('link-home-page');
     act(() => {
       fireEvent.click(linkHomePage);
     });
+  });
+
+  it("test search filter", async () => {
+    render(
+      <React.StrictMode>
+        <RouterProvider router={router} />
+      </React.StrictMode>
+    );
+
+    const input = screen.getByTestId('search-test');
+
+    
+    act(() => {
+      fireEvent.change(input, { target: { value: "Darius Hantig" } });
+    });
+
+    await act(async () => { });
+
+    const filteredList = initialUserList.filter(user => user.username.includes("Darius Hantig"));
+
+    const cards = screen.getAllByTestId('carousel-card-test');
+    expect(cards.length).toBe(filteredList.length*2);
+  
   });
 });

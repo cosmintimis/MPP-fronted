@@ -16,7 +16,7 @@ export default function MasterPage() {
             particleColor="#FFFFFF"
           />
         </div>
-        <div className="relative w-full h-[400px]">
+        <div className="relative w-full h-[500px]">
           <AutoplayCarousel />
         </div>
       </div>

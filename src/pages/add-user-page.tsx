@@ -1,5 +1,5 @@
 import React from "react";
-import { USERS } from "@/components/ui/carousel/carousel-config";
+import { USERS } from "@/constants/user";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,62 +24,71 @@ import { Calendar as CalendarIcon} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
+import { displayAlert } from "@/components/ui/custom-alert";
 
 export default function AddUserPage() {
 
     const [date, setDate] = React.useState<Date | undefined>(new Date());
 
     const formSchema = z.object({
-        userId: z.string(),
+        userId: z.coerce.number(),
         username: z.string(),
         email: z.string(),
         password: z.string(),
         avatar: z.string(),
         birthdate: z.date(),
-        phone: z.string(),
+        rating: z.coerce.number(),
         address: z.string(),
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            userId: "",
+            userId: 0,
             username: "",
             email: "",
             password: "",
             avatar: "",
             birthdate: new Date(),
-            phone: "",
+            rating: 0.1,
             address: "",
 
         },
     });
 
     function addEntity(values: z.infer<typeof formSchema>) {
+        const alertContainer = document.getElementById("alert-container");
         const userExists = USERS.find((user) => user.userId === values.userId);
         if (userExists) {
-            alert("User already exists");
+            if (alertContainer) {
+                displayAlert(alertContainer, "error", "User already exists");
+            }
             return;
         }
 
         if (
-            values.userId === "" ||
+            values.userId < 1 ||
+            !(Number(values.userId) === values.userId && values.userId % 1 === 0) ||
             values.username === "" ||
             values.email === "" ||
             values.password === "" ||
             values.avatar === "" ||
             typeof values.birthdate === 'undefined' || (!values.birthdate) ||
-            values.phone === "" ||
+            !(Number(values.rating) === values.rating && values.rating % 1 !== 0) ||
             values.address === ""
         ) {
-            alert("Please fill all the fields");
+            if (alertContainer) {
+            displayAlert(alertContainer, "warning", "Please fill all the fields");
+            }
             return;
         }
 
         USERS.push({
             ...values,
         });
-        alert("User added successfully");
+        if(alertContainer){
+            displayAlert(alertContainer, "success", "User added successfully");
+        }
     }
 
     return (
@@ -98,6 +107,7 @@ export default function AddUserPage() {
                     />
 
                 </div>
+                <div id="alert-container"></div>
                 <div className="flex justify-center z-10">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(addEntity)} className="space-y-8">
@@ -208,12 +218,12 @@ export default function AddUserPage() {
 
                             <FormField
                                 control={form.control}
-                                name="phone"
+                                name="rating"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="flex justify-start text-white">Phone</FormLabel>
+                                        <FormLabel className="flex justify-start text-white">Rating</FormLabel>
                                         <FormControl>
-                                            <Input data-testid="input-phone" placeholder="..." {...field} />
+                                            <Input data-testid="input-grade" placeholder="..." {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
