@@ -7,7 +7,10 @@ export function displayAlert(container: HTMLElement, type: "success" | "error" |
       "rounded-lg",
       "shadow-md",
       "transition-all",
-      "duration-300"
+      "duration-300",
+      "absolute",
+      "top-8",
+      "-translate-x-1/2",
     );
   
     switch (type) {

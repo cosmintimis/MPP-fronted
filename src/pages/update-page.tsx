@@ -87,7 +87,7 @@ export default function UpdatePage() {
         };
     
         if(alertContainer){
-            displayAlert(alertContainer, "success", "User added successfully");
+            displayAlert(alertContainer, "success", "User updated successfully");
         } 
     }
 
