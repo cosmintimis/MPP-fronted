@@ -2,10 +2,14 @@ import "./AutoplayCarousel.scss";
 import { USERS, USERS as initialUsers } from "@/constants/user";
 import CarouselItem from "./CarouselItem";
 import { useEffect, useState } from "react";
-import { buttonVariants, Button} from "@/components/ui/button";
+import { buttonVariants, Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import {Input} from "@/components/ui/input";
-
+import { Input } from "@/components/ui/input";
+import BarChart from "@/components/ui/bar-chart";
+import { ChartData, ChartOptions } from "chart.js";
+import 'chart.js/auto';
+// import { Chart, ArcElement} from "chart.js/auto"
+// Chart.register(ArcElement);
 
 export default function AutoplayCarousel() {
     const usersPerPage = 4;
@@ -17,25 +21,24 @@ export default function AutoplayCarousel() {
         clearSearch();
     }, [currentPage]);
 
-    
 
-    function clearSearch(){
+
+    function clearSearch() {
         const input = document.getElementById("myInput") as HTMLInputElement;
-        input.value = "";  
+        input.value = "";
     }
 
     async function deleteUser(userId: number) {
-        const index = users.findIndex((user) => user.userId === userId);
-        if (index === -1) {
+        const indexCurrentPage = users.findIndex((user) => user.userId === userId);
+        if (indexCurrentPage === -1) {
             return;
         }
-        const updatedUsers = [...users];
-        updatedUsers.splice(index, 1);
-        USERS.splice(index, 1);
+        const indexAllUsers = USERS.findIndex((user) => user.userId === userId);
+        USERS.splice(indexAllUsers, 1);
         displayCurrentPage();
     }
 
-    function handleSearch(){
+    function handleSearch() {
         const input = document.getElementById("myInput") as HTMLInputElement;
         const currentUsername = input.value;
 
@@ -43,25 +46,73 @@ export default function AutoplayCarousel() {
         setUsers(filteredUsers);
     }
 
-    function displayCurrentPage(){
+    function displayCurrentPage() {
         const indexOfFirstUser = (currentPage - 1) * usersPerPage;
         const indexOfLastUser = indexOfFirstUser + usersPerPage;
         const currentUsers = USERS.slice(indexOfFirstUser, indexOfLastUser);
         setUsers(currentUsers);
     }
 
-    function handleNextPage(){
-        if(currentPage === Math.ceil(initialUsers.length / usersPerPage))
+    function handleNextPage() {
+        if (currentPage === Math.ceil(initialUsers.length / usersPerPage))
             return;
         setCurrentPage(currentPage + 1);
-       
+
     }
 
-    function handlePreviousPage(){
-        if(currentPage === 1)
+    function handlePreviousPage() {
+        if (currentPage === 1)
             return;
         setCurrentPage(currentPage - 1);
     }
+
+
+    function getNumberOfBirthsPerYear(): number[] {
+
+        const allYears = [...new Set(USERS.sort((a, b) => a.birthdate.getFullYear() - b.birthdate.getFullYear()).map(user => user.birthdate.getFullYear()))];
+        const birthsPerYear = allYears.map(year => USERS.filter(user => user.birthdate.getFullYear() === year).length);
+        return birthsPerYear;
+    }
+
+    const userDataBarChart: ChartData<"bar"> = {
+        labels: [...new Set(USERS.sort((a, b) => a.birthdate.getFullYear() - b.birthdate.getFullYear()).map(user => user.birthdate.getFullYear()))],
+        datasets: [
+            {
+                label: 'Number of Births',
+                data: getNumberOfBirthsPerYear(),
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 2,
+            }
+
+        ]
+    };
+
+
+
+    const chartOptions: ChartOptions<"bar"> = {
+        maintainAspectRatio: false, responsive: true, plugins: {
+            legend: {
+                display: true,
+                position: "bottom"
+            },
+        },
+        scales: {
+            y: {
+                ticks: {
+                    stepSize: 0.5,
+                    color: 'white'
+                },
+            },
+            x: {
+                ticks: {
+                    color: 'white'
+                },
+            },
+
+        },
+        color: 'white'
+    };
 
     return (
         <>
@@ -93,15 +144,20 @@ export default function AutoplayCarousel() {
                     }
                 </div>
             </div>
-            <div className="flex relative items-center justify-center w-full mt-4">
+            <div className="flex relative items-center justify-center w-full mt-4 h-[10%]">
                 <p className="text-white pr-10">Count: {users.length}</p>
-                <p className="text-white pr-10">Page: {currentPage}</p>
-                <Link to={'/addUser'} data-testid="add-new-user-page" className={buttonVariants({ variant: "adding" })}>Add User</Link>    
+                <p data-testid="page-number" className="text-white pr-10">Page: {currentPage}</p>
+                <Link to={'/addUser'} data-testid="add-new-user-page" className={buttonVariants({ variant: "adding" })}>Add User</Link>
             </div>
-            <div  className="flex relative justify-between w-full mt-4">
-                <Button onClick={handlePreviousPage} className="ml-10" variant={"pagination"}>Previous Page</Button>
-                <Input data-testid="search-test" id="myInput" type="text" placeholder="Search" className="w-1/6" onChange={ () => {handleSearch()}} />
-                <Button onClick={handleNextPage} className="mr-10" variant={"pagination"}>Next Page</Button>
+            <div className="flex relative justify-between w-full mt-4 h-[10%]">
+                <Button data-testid="prev-btn" onClick={handlePreviousPage} className="ml-10" variant={"pagination"}>Previous Page</Button>
+                <Input data-testid="search-test" id="myInput" type="text" placeholder="Search" className="w-1/6" onChange={() => { handleSearch() }} />
+                <Button data-testid="next-btn" onClick={handleNextPage} className="mr-10" variant={"pagination"}>Next Page</Button>
+            </div>
+            <div className="flex relative justify-center items-center w-full mt-[10px] h-[40%] max-h-[350px] min-h-[200px]">
+                <div data-testid="bar-chart-test-id" className="h-[90%] w-1/2">
+                    <BarChart chartData={userDataBarChart} chartOptions={chartOptions} />
+                </div>
             </div>
         </>
     );

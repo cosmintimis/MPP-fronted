@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import App from "./App";
@@ -6,6 +6,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import UpdatePage from "./pages/update-page";
 import AddUserPage from "./pages/add-user-page";
 import { USERS as initialUserList } from "@/constants/user";
+import 'vitest-canvas-mock';
 
 const router = createBrowserRouter([
   {
@@ -23,10 +24,17 @@ const router = createBrowserRouter([
 
 ]);
 
-// Tests
-describe("Test CRUD", async () => {
+const ResizeObserverMock = vi.fn(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
 
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 
+describe("Test", async () => {
+
+ 
   it("Should delete first user", async () => {
     render(
       <React.StrictMode>
@@ -147,17 +155,90 @@ describe("Test CRUD", async () => {
 
     const input = screen.getByTestId('search-test');
 
-    
+    const firstUserName = initialUserList[0].username;
+
     act(() => {
-      fireEvent.change(input, { target: { value: "Darius Hantig" } });
+      fireEvent.change(input, { target: { value: firstUserName } });
     });
 
     await act(async () => { });
 
-    const filteredList = initialUserList.filter(user => user.username.includes("Darius Hantig"));
+    const firstPage = initialUserList.slice(0, 4);
+    const filteredList = firstPage.filter(user => user.username.includes(firstUserName));
+
+    console.log(filteredList.length);
 
     const cards = screen.getAllByTestId('carousel-card-test');
     expect(cards.length).toBe(filteredList.length*2);
   
   });
+
+
+  it("test pagination", async () => {
+    render(
+      <React.StrictMode>
+        <RouterProvider router={router} />
+      </React.StrictMode>
+    );
+
+    const currentPage = screen.getByTestId('page-number');
+    expect(currentPage.textContent).toBe("Page: 1");
+    expect(initialUserList.length).toBeGreaterThanOrEqual(8);
+
+    let cards = screen.getAllByTestId('carousel-card-test');
+    expect(cards.length).toBe(8);
+    expect(screen.getAllByText(initialUserList[0].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[1].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[2].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[3].username)[0]).toBeInTheDocument();
+   
+    const nextButton = screen.getByTestId('next-btn');
+  
+    act(() => {
+      fireEvent.click(nextButton);
+    });
+
+    await act(async () => { });
+
+    expect(currentPage.textContent).toBe("Page: 2");
+    cards = screen.getAllByTestId('carousel-card-test');
+    expect(cards.length).toBe(8);
+    expect(screen.getAllByText(initialUserList[4].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[5].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[6].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[7].username)[0]).toBeInTheDocument();
+
+    const prevButton = screen.getByTestId('prev-btn');
+
+    act(() => {
+      fireEvent.click(prevButton);
+    }
+    );
+
+    await act(async () => { });
+
+    expect(currentPage.textContent).toBe("Page: 1");
+    expect(cards.length).toBe(8);
+    expect(screen.getAllByText(initialUserList[0].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[1].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[2].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[3].username)[0]).toBeInTheDocument();
+
+
+
+  });
+
+  it("test bar chart", async () => {
+    render(
+      <React.StrictMode>
+        <RouterProvider router={router} />
+      </React.StrictMode>
+    );
+
+    const barChart = screen.getByTestId('bar-chart-test-id');
+    expect(barChart).toBeInTheDocument();
+    expect(barChart.querySelector('canvas')).toBeInTheDocument();
+  
+  });
+
 });

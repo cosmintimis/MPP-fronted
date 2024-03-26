@@ -1,6 +1,7 @@
 import { SparklesCore } from "@/components/ui/sparkles"
 import AutoplayCarousel from "@/components/ui/carousel/AutoplayCarousel"
 
+
 export default function MasterPage() {
     return (
       <>
@@ -16,7 +17,7 @@ export default function MasterPage() {
             particleColor="#FFFFFF"
           />
         </div>
-        <div className="relative w-full h-[500px]">
+        <div className="relative w-full h-full">
           <AutoplayCarousel />
         </div>
       </div>
