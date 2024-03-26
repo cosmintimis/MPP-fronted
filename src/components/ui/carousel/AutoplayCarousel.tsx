@@ -1,5 +1,5 @@
 import "./AutoplayCarousel.scss";
-import { USERS, USERS as initialUsers } from "@/constants/user";
+import { USERS, User} from "@/constants/user";
 import CarouselItem from "./CarouselItem";
 import { useEffect, useState } from "react";
 import { buttonVariants, Button } from "@/components/ui/button";
@@ -8,20 +8,19 @@ import { Input } from "@/components/ui/input";
 import BarChart from "@/components/ui/bar-chart";
 import { ChartData, ChartOptions } from "chart.js";
 import 'chart.js/auto';
+import { displayAlert } from "../custom-alert";
 // import { Chart, ArcElement} from "chart.js/auto"
 // Chart.register(ArcElement);
 
 export default function AutoplayCarousel() {
     const usersPerPage = 4;
-    const [users, setUsers] = useState(initialUsers.slice(0, usersPerPage));
+    const [users, setUsers] = useState<User[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         displayCurrentPage();
         clearSearch();
     }, [currentPage]);
-
-
 
     function clearSearch() {
         const input = document.getElementById("myInput") as HTMLInputElement;
@@ -35,6 +34,9 @@ export default function AutoplayCarousel() {
         }
         const indexAllUsers = USERS.findIndex((user) => user.userId === userId);
         USERS.splice(indexAllUsers, 1);
+
+        if(users.length === 1 && currentPage > 1)
+            setCurrentPage(currentPage - 1);
         displayCurrentPage();
     }
 
@@ -54,15 +56,26 @@ export default function AutoplayCarousel() {
     }
 
     function handleNextPage() {
-        if (currentPage === Math.ceil(initialUsers.length / usersPerPage))
+        const alertContainer = document.getElementById("alert-container");
+        if (currentPage >= Math.ceil(USERS.length / usersPerPage))
+        {
+            if(alertContainer)
+                displayAlert(alertContainer, "warning", "There are no more pages!");
             return;
+        }
+
         setCurrentPage(currentPage + 1);
 
     }
 
     function handlePreviousPage() {
+        const alertContainer = document.getElementById("alert-container");
         if (currentPage === 1)
+        {
+            if(alertContainer)
+                displayAlert(alertContainer, "warning", "There are no more pages!");
             return;
+        }
         setCurrentPage(currentPage - 1);
     }
 
@@ -78,7 +91,7 @@ export default function AutoplayCarousel() {
         labels: [...new Set(USERS.sort((a, b) => a.birthdate.getFullYear() - b.birthdate.getFullYear()).map(user => user.birthdate.getFullYear()))],
         datasets: [
             {
-                label: 'Number of Births',
+                label: 'Number of Births per Year',
                 data: getNumberOfBirthsPerYear(),
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 borderColor: 'rgba(255, 99, 132, 1)',
@@ -159,6 +172,8 @@ export default function AutoplayCarousel() {
                     <BarChart chartData={userDataBarChart} chartOptions={chartOptions} />
                 </div>
             </div>
+            <div className="absolute top-0 h-[75px] flex justify-center items-center w-full" id="alert-container"></div>
+            
         </>
     );
 }
