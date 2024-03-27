@@ -90,6 +90,36 @@ export var USERS: User[] = [
         rating: 9.25,
         address: "borsa"
     },
+    {
+        userId: 9,
+        username: "Dragos Pop",
+        email: "dragos.pop@gmail.com",
+        avatar: "https://robohash.org/1c375eb51d2e0786a06e94d7bbf51233?set=set4&bgset=&size=400x400",
+        password: "parola9",
+        birthdate: new Date("2005-08-06"),
+        rating: 9.55,
+        address: "viseu"
+    },
+    {
+        userId: 10,
+        username: "Sebastian Hojda",
+        email: "sebastian.hojda@gmail.com",
+        avatar: "https://robohash.org/1c375eb51d2e0786a06e94d7bbf51233?set=set4&bgset=&size=400x400",
+        password: "parola10",
+        birthdate: new Date("2005-09-06"),
+        rating: 5.25,
+        address: "sighet"
+    },
+    {
+        userId: 11,
+        username: "Gabriel Horj",
+        email: "gabriel.horj@gmail.com",
+        avatar: "https://robohash.org/1c375eb51d2e0786a06e94d7bbf51233?set=set4&bgset=&size=400x400",
+        password: "parola11",
+        birthdate: new Date("2005-02-06"),
+        rating: 6.25,
+        address: "baia borsa"
+    },
 ];
 
 

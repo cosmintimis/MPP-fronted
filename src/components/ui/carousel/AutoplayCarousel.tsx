@@ -1,5 +1,5 @@
 import "./AutoplayCarousel.scss";
-import { USERS, User} from "@/constants/user";
+import { USERS, User } from "@/constants/user";
 import CarouselItem from "./CarouselItem";
 import { useEffect, useState } from "react";
 import { buttonVariants, Button } from "@/components/ui/button";
@@ -11,16 +11,25 @@ import 'chart.js/auto';
 import { displayAlert } from "../custom-alert";
 // import { Chart, ArcElement} from "chart.js/auto"
 // Chart.register(ArcElement);
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function AutoplayCarousel() {
-    const usersPerPage = 4;
+    const [usersPerPage, setUsersPerPage] = useState(5);
     const [users, setUsers] = useState<User[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         displayCurrentPage();
         clearSearch();
-    }, [currentPage]);
+    }, [currentPage, usersPerPage]);
 
     function clearSearch() {
         const input = document.getElementById("myInput") as HTMLInputElement;
@@ -35,7 +44,7 @@ export default function AutoplayCarousel() {
         const indexAllUsers = USERS.findIndex((user) => user.userId === userId);
         USERS.splice(indexAllUsers, 1);
 
-        if(users.length === 1 && currentPage > 1)
+        if (users.length === 1 && currentPage > 1)
             setCurrentPage(currentPage - 1);
         displayCurrentPage();
     }
@@ -57,9 +66,8 @@ export default function AutoplayCarousel() {
 
     function handleNextPage() {
         const alertContainer = document.getElementById("alert-container");
-        if (currentPage >= Math.ceil(USERS.length / usersPerPage))
-        {
-            if(alertContainer)
+        if (currentPage >= Math.ceil(USERS.length / usersPerPage)) {
+            if (alertContainer)
                 displayAlert(alertContainer, "warning", "There are no more pages!");
             return;
         }
@@ -70,9 +78,8 @@ export default function AutoplayCarousel() {
 
     function handlePreviousPage() {
         const alertContainer = document.getElementById("alert-container");
-        if (currentPage === 1)
-        {
-            if(alertContainer)
+        if (currentPage === 1) {
+            if (alertContainer)
                 displayAlert(alertContainer, "warning", "There are no more pages!");
             return;
         }
@@ -127,6 +134,11 @@ export default function AutoplayCarousel() {
         color: 'white'
     };
 
+    var numbersPerPageToBeSelected = [];
+    for(let i = 5; i <= USERS.length; i+=5){ 
+        numbersPerPageToBeSelected.push(i);
+    }
+   
     return (
         <>
             <div className="carousel-container">
@@ -165,6 +177,24 @@ export default function AutoplayCarousel() {
             <div className="flex relative justify-between w-full mt-4 h-[10%]">
                 <Button data-testid="prev-btn" onClick={handlePreviousPage} className="ml-10" variant={"pagination"}>Previous Page</Button>
                 <Input data-testid="search-test" id="myInput" type="text" placeholder="Search" className="w-1/6" onChange={() => { handleSearch() }} />
+                <DropdownMenu >
+                    <DropdownMenuTrigger asChild>
+                        <Button data-testid="dropdown-btn-test-id" variant="outline">Users per Page</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent data-testid="dropdown-menu-content-test-id" className="w-56">
+                        <DropdownMenuLabel>Select desired number</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuRadioGroup>
+                            {
+                                numbersPerPageToBeSelected.map((numberPerPage) => (
+                                    <DropdownMenuRadioItem key={numberPerPage} data-testid="dropdown-item-test-id" value={numberPerPage.toString()} onClick={() => { setUsersPerPage(numberPerPage) }}>
+                                        {numberPerPage}
+                                    </DropdownMenuRadioItem>
+                                ))
+                            }
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
                 <Button data-testid="next-btn" onClick={handleNextPage} className="mr-10" variant={"pagination"}>Next Page</Button>
             </div>
             <div className="flex relative justify-center items-center w-full mt-[10px] h-[40%] max-h-[350px] min-h-[200px]">
@@ -173,7 +203,7 @@ export default function AutoplayCarousel() {
                 </div>
             </div>
             <div className="absolute top-0 h-[75px] flex justify-center items-center w-full" id="alert-container"></div>
-            
+
         </>
     );
 }

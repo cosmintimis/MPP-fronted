@@ -7,6 +7,7 @@ import UpdatePage from "./pages/update-page";
 import AddUserPage from "./pages/add-user-page";
 import { USERS as initialUserList } from "@/constants/user";
 import 'vitest-canvas-mock';
+import userEvent from '@testing-library/user-event';
 
 const router = createBrowserRouter([
   {
@@ -41,7 +42,7 @@ describe("Test", async () => {
         <RouterProvider router={router} />
       </React.StrictMode>
     );
-    expect(initialUserList.length).toBe(8);
+    expect(initialUserList.length).toBe(11);
 
     const firstUser = initialUserList[0];
     const allCardsWithSameName = screen.getAllByText(firstUser.username);
@@ -54,7 +55,7 @@ describe("Test", async () => {
   
     fireEvent.click(deleteButton!);
 
-    expect(initialUserList.length).toBe(7);
+    expect(initialUserList.length).toBe(10);
 
   });
 
@@ -137,7 +138,7 @@ describe("Test", async () => {
 
     await act(async () => { });
   
-    expect(initialUserList.length).toBe(8);
+    expect(initialUserList.length).toBe(11);
 
     /// return to home page
     const linkHomePage = screen.getByTestId('link-home-page');
@@ -166,8 +167,6 @@ describe("Test", async () => {
     const firstPage = initialUserList.slice(0, 4);
     const filteredList = firstPage.filter(user => user.username.includes(firstUserName));
 
-    console.log(filteredList.length);
-
     const cards = screen.getAllByTestId('carousel-card-test');
     expect(cards.length).toBe(filteredList.length*2);
   
@@ -186,11 +185,12 @@ describe("Test", async () => {
     expect(initialUserList.length).toBeGreaterThanOrEqual(8);
 
     let cards = screen.getAllByTestId('carousel-card-test');
-    expect(cards.length).toBe(8);
+    expect(cards.length).toBe(10);
     expect(screen.getAllByText(initialUserList[0].username)[0]).toBeInTheDocument();
     expect(screen.getAllByText(initialUserList[1].username)[0]).toBeInTheDocument();
     expect(screen.getAllByText(initialUserList[2].username)[0]).toBeInTheDocument();
     expect(screen.getAllByText(initialUserList[3].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[4].username)[0]).toBeInTheDocument();
    
     const nextButton = screen.getByTestId('next-btn');
   
@@ -202,11 +202,13 @@ describe("Test", async () => {
 
     expect(currentPage.textContent).toBe("Page: 2");
     cards = screen.getAllByTestId('carousel-card-test');
-    expect(cards.length).toBe(8);
-    expect(screen.getAllByText(initialUserList[4].username)[0]).toBeInTheDocument();
+    expect(cards.length).toBe(10);
     expect(screen.getAllByText(initialUserList[5].username)[0]).toBeInTheDocument();
     expect(screen.getAllByText(initialUserList[6].username)[0]).toBeInTheDocument();
     expect(screen.getAllByText(initialUserList[7].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[8].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[9].username)[0]).toBeInTheDocument();
+
 
     const prevButton = screen.getByTestId('prev-btn');
 
@@ -218,11 +220,12 @@ describe("Test", async () => {
     await act(async () => { });
 
     expect(currentPage.textContent).toBe("Page: 1");
-    expect(cards.length).toBe(8);
+    expect(cards.length).toBe(10);
     expect(screen.getAllByText(initialUserList[0].username)[0]).toBeInTheDocument();
     expect(screen.getAllByText(initialUserList[1].username)[0]).toBeInTheDocument();
     expect(screen.getAllByText(initialUserList[2].username)[0]).toBeInTheDocument();
     expect(screen.getAllByText(initialUserList[3].username)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(initialUserList[4].username)[0]).toBeInTheDocument();
 
 
 
@@ -238,7 +241,40 @@ describe("Test", async () => {
     const barChart = screen.getByTestId('bar-chart-test-id');
     expect(barChart).toBeInTheDocument();
     expect(barChart.querySelector('canvas')).toBeInTheDocument();
-  
   });
+
+  it("test dropdown", async () => {
+    render(
+      <React.StrictMode>
+        <RouterProvider router={router} />
+      </React.StrictMode>
+    );
+
+    let cards = screen.getAllByTestId('carousel-card-test');
+    expect(cards.length).toBe(10);
+
+    let dropdownBtn = screen.getByTestId('dropdown-btn-test-id');
+    expect(dropdownBtn).toBeInTheDocument();
+    expect(dropdownBtn.getAttribute('data-state')).toBe('closed');
+    
+    
+    const user = userEvent.setup();
+
+    await user.click(dropdownBtn);
+
+    expect(dropdownBtn.getAttribute('data-state')).toBe('open');
+
+    const dropdownItems = screen.getAllByTestId('dropdown-item-test-id');
+    expect(dropdownItems.length).toBe(2);
+
+    const dropdownItem = dropdownItems[1];
+    expect(dropdownItem).toBeInTheDocument();
+
+    await user.click(dropdownItem);
+
+    cards = screen.getAllByTestId('carousel-card-test');
+    expect(cards.length).toBe(20);
+  }
+  );
 
 });
