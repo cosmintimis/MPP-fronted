@@ -135,10 +135,10 @@ export default function AutoplayCarousel() {
     };
 
     var numbersPerPageToBeSelected = [];
-    for(let i = 5; i <= USERS.length; i+=5){ 
+    for (let i = 5; i <= USERS.length; i += 5) {
         numbersPerPageToBeSelected.push(i);
     }
-   
+
     return (
         <>
             <div className="carousel-container">
