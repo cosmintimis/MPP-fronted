@@ -1,5 +1,4 @@
 import React from "react";
-import { USERS } from "@/constants/user";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +9,7 @@ import {
     FormField,
     FormItem,
     FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
@@ -20,19 +20,19 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar as CalendarIcon} from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { displayAlert } from "@/components/ui/custom-alert";
+import { useUserStore } from "@/store/users";
 
 export default function AddUserPage() {
-
+    const { addUser } = useUserStore();
     const [date, setDate] = React.useState<Date | undefined>(new Date());
 
     const formSchema = z.object({
-        userId: z.coerce.number(),
-        username: z.string(),
+        username: z.string().min(3),
         email: z.string(),
         password: z.string(),
         avatar: z.string(),
@@ -44,7 +44,6 @@ export default function AddUserPage() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            userId: 0,
             username: "",
             email: "",
             password: "",
@@ -56,37 +55,11 @@ export default function AddUserPage() {
         },
     });
 
-    function addEntity(values: z.infer<typeof formSchema>) {
+    async function addEntity(values: z.infer<typeof formSchema>) {
         const alertContainer = document.getElementById("alert-container");
-        const userExists = USERS.find((user) => user.userId === values.userId);
-        if (userExists) {
-            if (alertContainer) {
-                displayAlert(alertContainer, "error", "User already exists");
-            }
-            return;
-        }
 
-        if (
-            values.userId < 1 ||
-            !(Number(values.userId) === values.userId && values.userId % 1 === 0) ||
-            values.username === "" ||
-            values.email === "" ||
-            values.password === "" ||
-            values.avatar === "" ||
-            typeof values.birthdate === 'undefined' || (!values.birthdate) ||
-            !(Number(values.rating) === values.rating && values.rating % 1 !== 0) ||
-            values.address === ""
-        ) {
-            if (alertContainer) {
-            displayAlert(alertContainer, "warning", "Please fill all the fields");
-            }
-            return;
-        }
-
-        USERS.push({
-            ...values,
-        });
-        if(alertContainer){
+        await addUser(values); 
+        if (alertContainer) {
             displayAlert(alertContainer, "success", "User added successfully");
         }
     }
@@ -95,7 +68,7 @@ export default function AddUserPage() {
         <>
             <div className="h-[100vh] relative w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
                 <div className="w-full absolute inset-0 h-screen z-0">
-                    <SparklesCore
+                    {/* <SparklesCore
                         id="tsparticlesfullpage"
                         background="transparent"
                         minSize={0.6}
@@ -104,7 +77,7 @@ export default function AddUserPage() {
                         speed={0.2}
                         className="w-full h-full"
                         particleColor="#FFFFFF"
-                    />
+                    /> */}
 
                 </div>
                 <div id="alert-container"></div>
@@ -113,27 +86,17 @@ export default function AddUserPage() {
                         <form onSubmit={form.handleSubmit(addEntity)} className="space-y-8">
                             <FormField
                                 control={form.control}
-                                name="userId"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="flex justify-start text-white">ID</FormLabel>
-                                        <FormControl className="w-80">
-                                            <Input data-testid="input-userid" placeholder="..." {...field} />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
                                 name="username"
-                                render={({ field }) => (
+                                render={({ field,  }) => (
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Username</FormLabel>
                                         <FormControl className="w-80">
                                             <Input data-testid="input-username" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
+
                             />
                             <FormField
                                 control={form.control}
@@ -144,6 +107,7 @@ export default function AddUserPage() {
                                         <FormControl>
                                             <Input data-testid="input-email" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -156,6 +120,7 @@ export default function AddUserPage() {
                                         <FormControl>
                                             <Input data-testid="input-password" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -168,6 +133,7 @@ export default function AddUserPage() {
                                         <FormControl>
                                             <Input data-testid="input-avatar" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -192,9 +158,9 @@ export default function AddUserPage() {
                                                         {date ? format(date, "PPP") : <span>Pick a date</span>}
                                                     </Button>
                                                 </PopoverTrigger>
-                                                <PopoverContent  className="w-auto p-0">
+                                                <PopoverContent className="w-auto p-0">
                                                     <Calendar
-                                                    
+
                                                         initialFocus
                                                         mode="single"
                                                         selected={field.value}
@@ -211,6 +177,7 @@ export default function AddUserPage() {
                                                 </PopoverContent>
                                             </Popover>
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -225,6 +192,7 @@ export default function AddUserPage() {
                                         <FormControl>
                                             <Input data-testid="input-grade" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -237,6 +205,7 @@ export default function AddUserPage() {
                                         <FormControl>
                                             <Input data-testid="input-address" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />

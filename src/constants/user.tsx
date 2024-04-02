@@ -1,5 +1,5 @@
 export type User = {
-    userId: number;
+    id: number;
     username: string;
     email: string;
     avatar: string;
@@ -11,7 +11,7 @@ export type User = {
 
 export var USERS: User[] = [
     {
-        userId: 1,
+        id: 1,
         username: "Cosmin Timis",
         email: "cosmin.timis@gmail.com",
         avatar: "https://robohash.org/e5a84795597420d98d606433f8ad1f70?set=set4&bgset=&size=400x400",
@@ -21,7 +21,7 @@ export var USERS: User[] = [
         address: "address1"
     },
     {
-        userId: 2,
+        id: 2,
         username: "Roberto Pitic",
         email: "roberto.pitic@gmail.com",
         avatar: "https://robohash.org/123a37a18fdbba6a742e7446c8166393?set=set4&bgset=&size=400x400",
@@ -31,7 +31,7 @@ export var USERS: User[] = [
         address: "Moisei gara"
     },
     {
-        userId: 3,
+        id: 3,
         username: "Alex Popescu",
         email: "alex.popescu@gmail.com",
         avatar: "https://robohash.org/6bce224daedfea2d8296ceb4597929b7?set=set4&bgset=&size=400x400",
@@ -41,7 +41,7 @@ export var USERS: User[] = [
         address: "cluj"
     },
     {
-        userId: 4,
+        id: 4,
         username: "Mihai Pop",
         email: "mihai.pop@gmail.com",
         avatar: "https://robohash.org/3afc9b17743e55d9c40cb9a8df20517c?set=set4&bgset=&size=400x400",
@@ -51,7 +51,7 @@ export var USERS: User[] = [
         address: "baia mare"
     },
     {
-        userId: 5,
+        id: 5,
         username: "Andrei Pop",
         email: "andrei.pop@gmail.com",
         avatar: "https://robohash.org/7f313371cd50e8132291ef6ec2a9dc25?set=set4&bgset=&size=400x400",
@@ -61,7 +61,7 @@ export var USERS: User[] = [
         address: "bucuresti"
     },
     {
-        userId: 6,
+        id: 6,
         username: "Dragos Pop",
         email: "dragos.pop@gmail.com",
         avatar: "https://robohash.org/d98db5779a7d4e3257552f63bc1bdefe?set=set4&bgset=&size=400x400",
@@ -71,7 +71,7 @@ export var USERS: User[] = [
         address: "targu-jiu"
     },
     {
-        userId: 7,
+        id: 7,
         username: "Dan Pop",
         email: "dan.pop@gmail.com",
         avatar: "https://robohash.org/0b456df7de7f1f41c3da509934272113?set=set4&bgset=&size=400x400",
@@ -81,7 +81,7 @@ export var USERS: User[] = [
         address: "satu mare"
     },
     {
-        userId: 8,
+        id: 8,
         username: "Darius Hantig",
         email: "darius.hantig@gmail.com",
         avatar: "https://robohash.org/1c375eb51d2e0786a06e94d7bbf51233?set=set4&bgset=&size=400x400",
@@ -91,7 +91,7 @@ export var USERS: User[] = [
         address: "borsa"
     },
     {
-        userId: 9,
+        id: 9,
         username: "Dragos Pop",
         email: "dragos.pop@gmail.com",
         avatar: "https://robohash.org/1c375eb51d2e0786a06e94d7bbf51233?set=set4&bgset=&size=400x400",
@@ -101,7 +101,7 @@ export var USERS: User[] = [
         address: "viseu"
     },
     {
-        userId: 10,
+        id: 10,
         username: "Sebastian Hojda",
         email: "sebastian.hojda@gmail.com",
         avatar: "https://robohash.org/1c375eb51d2e0786a06e94d7bbf51233?set=set4&bgset=&size=400x400",
@@ -111,7 +111,7 @@ export var USERS: User[] = [
         address: "sighet"
     },
     {
-        userId: 11,
+        id: 11,
         username: "Gabriel Horj",
         email: "gabriel.horj@gmail.com",
         avatar: "https://robohash.org/1c375eb51d2e0786a06e94d7bbf51233?set=set4&bgset=&size=400x400",

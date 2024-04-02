@@ -1,7 +1,6 @@
 import "./AutoplayCarousel.scss";
-import { USERS, User } from "@/constants/user";
 import CarouselItem from "./CarouselItem";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { buttonVariants, Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -20,14 +19,23 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useUserStore } from "@/store/users";
 
 export default function AutoplayCarousel() {
+    const { deleteUser, users } = useUserStore();
     const [usersPerPage, setUsersPerPage] = useState(5);
-    const [users, setUsers] = useState<User[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchValue, setSearchValue] = useState("");
+
+    const localUsers = useMemo(() => {
+        const startUsersPerPage = (currentPage - 1) * usersPerPage;
+        const endUsersPerPage = currentPage * usersPerPage;
+
+        const filteredUsers = users.slice(startUsersPerPage, endUsersPerPage).filter(user => user.username.toLowerCase().includes(searchValue.toLowerCase()));
+        return filteredUsers;
+    }, [currentPage, usersPerPage, searchValue, users]);
 
     useEffect(() => {
-        displayCurrentPage();
         clearSearch();
     }, [currentPage, usersPerPage]);
 
@@ -36,37 +44,17 @@ export default function AutoplayCarousel() {
         input.value = "";
     }
 
-    async function deleteUser(userId: number) {
-        const indexCurrentPage = users.findIndex((user) => user.userId === userId);
-        if (indexCurrentPage === -1) {
-            return;
-        }
-        const indexAllUsers = USERS.findIndex((user) => user.userId === userId);
-        USERS.splice(indexAllUsers, 1);
-
-        if (users.length === 1 && currentPage > 1)
-            setCurrentPage(currentPage - 1);
-        displayCurrentPage();
-    }
-
     function handleSearch() {
         const input = document.getElementById("myInput") as HTMLInputElement;
         const currentUsername = input.value;
 
-        const filteredUsers = USERS.slice(currentPage - 1, usersPerPage).filter(user => user.username.toLowerCase().includes(currentUsername.toLowerCase()));
-        setUsers(filteredUsers);
+        setSearchValue(currentUsername);
     }
 
-    function displayCurrentPage() {
-        const indexOfFirstUser = (currentPage - 1) * usersPerPage;
-        const indexOfLastUser = indexOfFirstUser + usersPerPage;
-        const currentUsers = USERS.slice(indexOfFirstUser, indexOfLastUser);
-        setUsers(currentUsers);
-    }
 
     function handleNextPage() {
         const alertContainer = document.getElementById("alert-container");
-        if (currentPage >= Math.ceil(USERS.length / usersPerPage)) {
+        if (currentPage >= Math.ceil(users.length / usersPerPage)) {
             if (alertContainer)
                 displayAlert(alertContainer, "warning", "There are no more pages!");
             return;
@@ -89,13 +77,13 @@ export default function AutoplayCarousel() {
 
     function getNumberOfBirthsPerYear(): number[] {
 
-        const allYears = [...new Set(USERS.sort((a, b) => a.birthdate.getFullYear() - b.birthdate.getFullYear()).map(user => user.birthdate.getFullYear()))];
-        const birthsPerYear = allYears.map(year => USERS.filter(user => user.birthdate.getFullYear() === year).length);
+        const allYears = [...new Set(users.sort((a, b) => a.birthdate.getFullYear() - b.birthdate.getFullYear()).map(user => user.birthdate.getFullYear()))];
+        const birthsPerYear = allYears.map(year => users.filter(user => user.birthdate.getFullYear() === year).length);
         return birthsPerYear;
     }
 
     const userDataBarChart: ChartData<"bar"> = {
-        labels: [...new Set(USERS.sort((a, b) => a.birthdate.getFullYear() - b.birthdate.getFullYear()).map(user => user.birthdate.getFullYear()))],
+        labels: [...new Set(users.sort((a, b) => a.birthdate.getFullYear() - b.birthdate.getFullYear()).map(user => user.birthdate.getFullYear()))],
         datasets: [
             {
                 label: 'Number of Births per Year',
@@ -135,7 +123,7 @@ export default function AutoplayCarousel() {
     };
 
     var numbersPerPageToBeSelected = [];
-    for (let i = 5; i <= USERS.length; i += 5) {
+    for (let i = 5; i <= users.length; i += 5) {
         numbersPerPageToBeSelected.push(i);
     }
 
@@ -143,24 +131,12 @@ export default function AutoplayCarousel() {
         <>
             <div className="carousel-container">
                 <div className="carousel-track">
-                    {users.map(user => (
+                    {localUsers.map(user => (
                         <CarouselItem
-                            key={user.userId}
+                            key={user.id}
                             username={user.username}
                             avatar={user.avatar}
-                            userId={user.userId}
-                            birthdate={user.birthdate}
-                            deleteAction={deleteUser}
-                        ></CarouselItem>
-                    )
-                    )
-                    }
-                    {users.map(user => (
-                        <CarouselItem
-                            key={user.userId}
-                            username={user.username}
-                            avatar={user.avatar}
-                            userId={user.userId}
+                            userId={user.id}
                             birthdate={user.birthdate}
                             deleteAction={deleteUser}
                         ></CarouselItem>
@@ -170,7 +146,7 @@ export default function AutoplayCarousel() {
                 </div>
             </div>
             <div className="flex relative items-center justify-center w-full mt-4 h-[10%]">
-                <p className="text-white pr-10">Count: {users.length}</p>
+                <p className="text-white pr-10">Count: {localUsers.length}</p>
                 <p data-testid="page-number" className="text-white pr-10">Page: {currentPage}</p>
                 <Link to={'/addUser'} data-testid="add-new-user-page" className={buttonVariants({ variant: "adding" })}>Add User</Link>
             </div>

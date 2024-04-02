@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { USERS } from "@/constants/user";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
     FormField,
     FormItem,
     FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { SparklesCore } from "@/components/ui/sparkles";
@@ -25,31 +26,35 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { displayAlert } from "@/components/ui/custom-alert";
+import { useUserStore } from "@/store/users";
 
 
 export default function UpdatePage() {
     const { userId } = useParams<{ userId: string }>();
+    const { updateUser, getUser } = useUserStore();
 
-
-    const user = USERS.find((user) => (user.userId).toString() === userId);
-
-    const [date, setDate] = React.useState<Date | undefined>(user?.birthdate);
+    const [date, setDate] = React.useState<Date | undefined>();
 
 
     const formSchema = z.object({
-        username: z.string(),
-        email: z.string(),
-        password: z.string(),
-        avatar: z.string(),
+        username: z.string().min(6),
+        email: z.string().email(),
+        password: z.string().min(6),
+        avatar: z.string({ required_error: "Avatar is required" }),
         birthdate: z.date(),
         rating: z.coerce.number(),
         address: z.string(),
-
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
+    });
+
+    async function updateUserDefault() {
+        if (!userId) return;
+        const user = await getUser(parseInt(userId));
+        setDate(user?.birthdate);
+        form.reset({
             username: user?.username,
             email: user?.email,
             password: user?.password,
@@ -57,38 +62,26 @@ export default function UpdatePage() {
             birthdate: user?.birthdate,
             rating: user?.rating,
             address: user?.address,
-        },
-    });
+        });
+    }
 
-    function updateEntity(values: z.infer<typeof formSchema>) {
-        const alertContainer = document.getElementById("alert-container"); 
-        const index = USERS.findIndex((user) => (user.userId).toString() === userId);
-        if (index === -1) {
-            return;
-        }
+    useEffect(() => {
+        updateUserDefault();
+    }, []);
 
-        if (
-            values.username === "" ||
-            values.email === "" ||
-            values.password === "" ||
-            typeof values.birthdate === 'undefined' ||
-            !(Number(values.rating) === values.rating && values.rating % 1 !== 0) ||
-            values.address === ""
-        ) {
-            if (alertContainer) {
-                displayAlert(alertContainer, "warning", "Please fill all the fields");
-                }
-            return;
-        }
-       
-        USERS[index] = {
-            ...USERS[index],
-            ...values,
-        };
-    
-        if(alertContainer){
+    async function updateEntity(values: z.infer<typeof formSchema>) {
+        const alertContainer = document.getElementById("alert-container");
+
+        if (!userId) return;
+
+        await updateUser({
+            id: parseInt(userId),
+            ...values
+        });
+
+        if (alertContainer) {
             displayAlert(alertContainer, "success", "User updated successfully");
-        } 
+        }
     }
 
 
@@ -96,7 +89,7 @@ export default function UpdatePage() {
         <>
             <div className="h-[100vh] relative w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
                 <div className="w-full absolute inset-0 h-screen z-0">
-                    <SparklesCore
+                    {/* <SparklesCore
                         id="tsparticlesfullpage"
                         background="transparent"
                         minSize={0.6}
@@ -104,7 +97,7 @@ export default function UpdatePage() {
                         particleDensity={50}
                         className="w-full h-full"
                         particleColor="#FFFFFF"
-                    />
+                    /> */}
                 </div>
                 <div id="alert-container"></div>
                 <div className="flex justify-center z-10">
@@ -122,6 +115,7 @@ export default function UpdatePage() {
                                         <FormControl className="w-80">
                                             <Input data-testid="input-username-update" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -134,6 +128,7 @@ export default function UpdatePage() {
                                         <FormControl>
                                             <Input data-testid="input-email-update" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -144,9 +139,10 @@ export default function UpdatePage() {
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Password</FormLabel>
                                         <FormControl>
-                                            <Input    
-                                            data-testid="input-password-update"  placeholder="..." {...field} />
+                                            <Input
+                                                data-testid="input-password-update" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -159,6 +155,7 @@ export default function UpdatePage() {
                                         <FormControl>
                                             <Input data-testid="input-avatar-update" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -200,6 +197,7 @@ export default function UpdatePage() {
                                                 </PopoverContent>
                                             </Popover>
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -213,8 +211,9 @@ export default function UpdatePage() {
                                         <FormLabel className="flex justify-start text-white">Rating</FormLabel>
                                         <FormControl>
                                             <Input
-                                            type="number" data-testid="input-grade-update"  placeholder="..." {...field} />
+                                                type="number" data-testid="input-grade-update" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -227,6 +226,7 @@ export default function UpdatePage() {
                                         <FormControl>
                                             <Input data-testid="input-address-update" placeholder="..." {...field} />
                                         </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -237,7 +237,7 @@ export default function UpdatePage() {
                             <Link to={"/"} data-testid="link-home-page" className="text-white underline mt-4 pl-20">Back to home</Link>
                         </form>
                     </Form>
-                   
+
                 </div>
             </div>
         </>

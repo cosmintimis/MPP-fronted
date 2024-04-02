@@ -7,7 +7,7 @@ export default function MasterPage() {
       <>
       <div className="h-[100vh] relative w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
         <div className="w-full absolute inset-0 h-screen">
-          <SparklesCore
+          {/* <SparklesCore
             id="tsparticlesfullpage"
             background="transparent"
             minSize={0.6}
@@ -15,7 +15,7 @@ export default function MasterPage() {
             particleDensity={50}
             className="w-full h-full"
             particleColor="#FFFFFF"
-          />
+          /> */}
         </div>
         <div className="relative w-full h-full">
           <AutoplayCarousel />
