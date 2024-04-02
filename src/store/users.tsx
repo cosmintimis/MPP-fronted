@@ -3,16 +3,16 @@ import { createContext, useContext } from "react";
 
 type UserStore = {
     users: User[];
-    addUser: (user: Omit<User, 'id'>) => Promise<User>;
+    addUser: (user: Omit<User, 'id'>) => Promise<void>;
     deleteUser: (userId: number) => Promise<void>;
-    updateUser: (user: User) => Promise<User>;
+    updateUser: (user: User) => Promise<void>;
     getUser: (userId: number) => Promise<User | undefined>;
 }
 const UserStoreContext = createContext<UserStore>({
     users: [],
-    addUser: async () => { return {} as User },
+    addUser: async () => { },
     deleteUser: async () => { },
-    updateUser: async () => { return {} as User },
+    updateUser: async () => { },
     getUser: async () => ({} as User),
 });
 

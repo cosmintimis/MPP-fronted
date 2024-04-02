@@ -5,7 +5,8 @@ import AddUserPage from './pages/add-user-page';
 import UpdatePage from './pages/update-page';
 import UserStoreContext from './store/users';
 import { USERS, User } from './constants/user';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { addUser, deleteUser, getUser, getUsers, updateUser } from './api/users';
 
 
 
@@ -22,32 +23,33 @@ const router = createBrowserRouter([
     path: "/addUser",
     element: <AddUserPage />
   }
-
 ]);
 function App() {
-  const [users, setUsers] = useState<User[]>(USERS)
+  const [users, setUsers] = useState<User[]>([])
+  async function fetchUsers() {
+    const users = await getUsers();
+    setUsers(users);
+  }
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-  async function addUser(user: Omit<User, 'id'>): Promise<User> {
-    const savedUser = { id: users.length + 1, ...user }
-    setUsers([...users, savedUser])
-    return savedUser
-  }
-  async function deleteUser(userId: number) {
-    setUsers(users.filter(user => user.id !== userId))
-  }
-  async function updateUser(user: User) {
-    setUsers(users.map(u => u.id === user.id ? user : u))
-    return user;
-  }
-  async function getUser(userId: number) {
-    return users.find(user => user.id === userId)
-  }
 
   const userStore = {
     users: users,
-    addUser,
-    deleteUser,
-    updateUser,
+    addUser: async (user: Omit<User, 'id'>) => {
+      const userSaved = await addUser(user);
+      setUsers([...users, userSaved]);
+
+    },
+    deleteUser: async (userId: number) => {
+      await deleteUser(userId);
+      setUsers(users.filter(user => user.id !== userId));
+    },
+    updateUser: async (user: User) => {
+      await updateUser(user);
+      setUsers(users.map(u => u.id === user.id ? user : u));
+    },
     getUser,
   }
   return (
