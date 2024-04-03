@@ -31,7 +31,6 @@ export default function AutoplayCarousel() {
         const startUsersPerPage = (currentPage - 1) * usersPerPage;
         const endUsersPerPage = currentPage * usersPerPage;
         const filteredUsers = users.slice(startUsersPerPage, endUsersPerPage).filter(user => user.username.toLowerCase().includes(searchValue.toLowerCase()));
-        console.log(filteredUsers);
         return filteredUsers;
     }, [currentPage, usersPerPage, searchValue, users]);
 
@@ -82,13 +81,13 @@ export default function AutoplayCarousel() {
 
     function getNumberOfBirthsPerYear(): number[] {
 
-        const allYears = [...new Set(users.sort((a, b) => a.birthdate.getFullYear() - b.birthdate.getFullYear()).map(user => user.birthdate.getFullYear()))];
+        const allYears = [...new Set([...users].sort((a, b) => a.birthdate.getFullYear() - b.birthdate.getFullYear()).map(user => user.birthdate.getFullYear()))];
         const birthsPerYear = allYears.map(year => users.filter(user => user.birthdate.getFullYear() === year).length);
         return birthsPerYear;
     }
 
     const userDataBarChart: ChartData<"bar"> = {
-        labels: [...new Set(users.sort((a, b) => a.birthdate.getFullYear() - b.birthdate.getFullYear()).map(user => user.birthdate.getFullYear()))],
+        labels: [...new Set([...users].sort((a, b) => a.birthdate.getFullYear() - b.birthdate.getFullYear()).map(user => user.birthdate.getFullYear()))],
         datasets: [
             {
                 label: 'Number of Births per Year',

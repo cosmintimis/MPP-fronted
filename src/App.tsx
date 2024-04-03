@@ -36,6 +36,7 @@ function App({api}: Props) {
   async function fetchUsers() {
     const users = await api.getUsers(flag);
     setUsers(users);
+    console.log(users);
   }
   useEffect(() => {
     fetchUsers();
