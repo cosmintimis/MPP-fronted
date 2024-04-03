@@ -22,7 +22,7 @@ import {
 import { useUserStore } from "@/store/users";
 
 export default function AutoplayCarousel() {
-    const { deleteUser, users } = useUserStore();
+    const { deleteUser, users, changeFlag, flag } = useUserStore();
     const [usersPerPage, setUsersPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
@@ -30,14 +30,18 @@ export default function AutoplayCarousel() {
     const localUsers = useMemo(() => {
         const startUsersPerPage = (currentPage - 1) * usersPerPage;
         const endUsersPerPage = currentPage * usersPerPage;
-
         const filteredUsers = users.slice(startUsersPerPage, endUsersPerPage).filter(user => user.username.toLowerCase().includes(searchValue.toLowerCase()));
+        console.log(filteredUsers);
         return filteredUsers;
     }, [currentPage, usersPerPage, searchValue, users]);
 
     useEffect(() => {
         clearSearch();
     }, [currentPage, usersPerPage]);
+
+    function handleSort() {
+        changeFlag(flag.valueOf() == "false" ? "true" : "false");
+    }
 
     function clearSearch() {
         const input = document.getElementById("myInput") as HTMLInputElement;
@@ -47,7 +51,6 @@ export default function AutoplayCarousel() {
     function handleSearch() {
         const input = document.getElementById("myInput") as HTMLInputElement;
         const currentUsername = input.value;
-
         setSearchValue(currentUsername);
     }
 
@@ -73,6 +76,8 @@ export default function AutoplayCarousel() {
         }
         setCurrentPage(currentPage - 1);
     }
+
+ 
 
 
     function getNumberOfBirthsPerYear(): number[] {
@@ -171,6 +176,7 @@ export default function AutoplayCarousel() {
                         </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
+                <Button data-testid="sort-btn" onClick={handleSort} className="mr-10" variant={"pagination"}>Sort by username</Button>
                 <Button data-testid="next-btn" onClick={handleNextPage} className="mr-10" variant={"pagination"}>Next Page</Button>
             </div>
             <div className="flex relative justify-center items-center w-full mt-[10px] h-[40%] max-h-[350px] min-h-[200px]">

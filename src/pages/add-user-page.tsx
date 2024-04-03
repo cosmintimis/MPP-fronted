@@ -32,13 +32,13 @@ export default function AddUserPage() {
     const [date, setDate] = React.useState<Date | undefined>(new Date());
 
     const formSchema = z.object({
-        username: z.string().min(3),
-        email: z.string(),
-        password: z.string(),
-        avatar: z.string(),
+        username: z.string().min(6, {message: 'Username must be at least 6 characters long'}),
+        email: z.string().min(1, {message: 'Email is required'}).email('Invalid email address'),
+        password: z.string().min(6, {message: 'Password must be at least 6 characters long'}),
+        avatar: z.string().min(1, {message: 'Avatar is required'}),
         birthdate: z.date(),
-        rating: z.coerce.number(),
-        address: z.string(),
+        rating: z.coerce.number().refine((val) => val > 0 && val <= 10, {message: 'Rating must be between 0 and 10'}),
+        address: z.string().min(1, {message: 'Address is required'})
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -49,7 +49,7 @@ export default function AddUserPage() {
             password: "",
             avatar: "",
             birthdate: new Date(),
-            rating: 0.1,
+            rating: undefined,
             address: "",
 
         },
@@ -68,7 +68,7 @@ export default function AddUserPage() {
         <>
             <div className="h-[100vh] relative w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
                 <div className="w-full absolute inset-0 h-screen z-0">
-                    {/* <SparklesCore
+                    <SparklesCore
                         id="tsparticlesfullpage"
                         background="transparent"
                         minSize={0.6}
@@ -77,8 +77,7 @@ export default function AddUserPage() {
                         speed={0.2}
                         className="w-full h-full"
                         particleColor="#FFFFFF"
-                    /> */}
-
+                    />
                 </div>
                 <div id="alert-container"></div>
                 <div className="flex justify-center z-10">

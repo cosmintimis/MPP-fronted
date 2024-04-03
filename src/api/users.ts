@@ -3,15 +3,16 @@ import axios from "axios";
 
 const BASE_URL = 'http://localhost:8080';
 
-async function getUsers(): Promise<User[]> {
-    const response = await axios(`${BASE_URL}/api/users`, { method: 'GET' });
+async function getUsers(flag: string): Promise<User[]> {
+    const response = await axios(`${BASE_URL}/api/users?sorted=${flag}`, { method: 'GET' });
     return response.data.map((user: User) => {
         user.birthdate = new Date(user.birthdate);
         return user;
     });
 }
 async function addUser(user: Omit<User, 'id'>): Promise<User> {
-    return {} as User;
+    await axios(`${BASE_URL}/api/users`, { method: 'POST', data: user });
+    return user as User;
 }
 async function deleteUser(userId: number) {
     await axios(`${BASE_URL}/api/users/${userId}`, { method: 'DELETE' });
@@ -28,8 +29,6 @@ async function getUser(userId: number): Promise<User> {
     };
     return user;
 }
-
-
 
 export {
     addUser,
