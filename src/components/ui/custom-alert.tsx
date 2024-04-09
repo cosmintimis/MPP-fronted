@@ -1,5 +1,6 @@
 export function displayAlert(container: HTMLElement, type: "success" | "error" | "warning", message: string) {
     const alertElement = document.createElement("div");
+    container.style.display = "flex";
     alertElement.classList.add(
       "text-white",
       "px-4",
@@ -26,10 +27,13 @@ export function displayAlert(container: HTMLElement, type: "success" | "error" |
     }
   
     alertElement.textContent = message;
+
+  
   
     container.appendChild(alertElement);
   
     setTimeout(() => {
       alertElement.remove();
+      container.style.display = "none";
     }, 3000);
   }

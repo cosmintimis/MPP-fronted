@@ -1,15 +1,26 @@
-import { User } from "@/constants/user";
+import { User, UserListWithSize } from "@/constants/user";
 import axios from "axios";
 
 const BASE_URL = 'http://localhost:8080';
 
-async function getUsers(flag: string): Promise<User[]> {
-    const response = await axios(`${BASE_URL}/api/users?sorted=${flag}`, { method: 'GET' });
-    return response.data.map((user: User) => {
-        user.birthdate = new Date(user.birthdate);
-        return user;
-    });
+async function getUsers(sortedByUsername: string, searchByUsername: string, limit: number, skip: number): Promise<UserListWithSize> {
+    const response = await axios(`${BASE_URL}/api/users?sortedByUsername=${sortedByUsername}&searchByUsername=${searchByUsername}&limit=${limit}&skip=${skip}`, { method: 'GET' });
+    const users = response.data.users.map((user: any) => {
+        return {
+            ...user,
+            birthdate: new Date(user.birthdate)
+        }
+    }
+    );
+    const size = response.data.size;
+    return { users, size };
 }
+
+async function getBirthsPerYear(): Promise<{[key: string] : number}> {
+    const response = await axios(`${BASE_URL}/api/users/births-per-year`, { method: 'GET' });
+    return response.data;
+}
+
 async function addUser(user: Omit<User, 'id'>): Promise<User> {
     await axios(`${BASE_URL}/api/users`, { method: 'POST', data: user });
     return user as User;
@@ -35,5 +46,6 @@ export {
     deleteUser,
     updateUser,
     getUser,
-    getUsers
+    getUsers,
+    getBirthsPerYear
 }

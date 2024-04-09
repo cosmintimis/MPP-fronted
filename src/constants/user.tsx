@@ -9,6 +9,11 @@ export type User = {
     address: string;
 };
 
+export type UserListWithSize = {
+    users: User[];
+    size: number;
+};
+
 export var USERS: User[] = [
     {
         id: 1,
