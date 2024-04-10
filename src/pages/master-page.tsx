@@ -16,12 +16,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { displayAlert } from "@/components/ui/custom-alert";
 
 export default function MasterPage() {
 
-    const { users, birthsPerYear, size, skip, limit, setSearchByUsername, setSortedByUsername, setSkip, setLimit } = useUserStore();
+    const { birthsPerYear, size, limit, setSearchByUsername, setSortedByUsername, setSkip, setLimit } = useUserStore();
     const [currentPage, setCurrentPage] = useState(0);
    
 
@@ -152,7 +152,7 @@ export default function MasterPage() {
             <div data-testid="bar-chart-test-id" className="h-[200px] w-[300px] mt-8 z-10">
                         <BarChart chartData={userDataBarChart} chartOptions={chartOptions} />
             </div>
-            <div className="absolute top-0 h-[75px] hidden justify-center items-center w-full z-10" id="alert-container"></div>
+            <div className="absolute top-0 h-[75px] hidden justify-center items-center w-full z-10" id="alert-container" data-testid="alert-container-test"></div>
         </div>
     </>
     );

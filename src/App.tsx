@@ -6,6 +6,7 @@ import UpdatePage from './pages/update-page';
 import UserStoreContext from './store/users';
 import { User, UserListWithSize } from './constants/user';
 import { useEffect, useState } from 'react';
+import CheckInternetConnection from './components/ui/checkInternetConnection';
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,7 @@ function App({api}: Props) {
   const[limit, setLimit] = useState<number>(5);
   const[skip, setSkip] = useState<number>(0);
   const[size, setSize] = useState<number>(0);
+  const [serverStatus, setServerStatus] = useState("Online");
   async function fetchUsers() {
     const UserListWithSize = await api.getUsers(sortedByUsername, searchByUsername, limit, skip);
     setUsers(UserListWithSize.users);
@@ -50,6 +52,8 @@ function App({api}: Props) {
     setBirthsPerYear(birthsPerYear);
   }
 
+ 
+
   useEffect(() => {
     fetchUsers();
   }, [sortedByUsername, searchByUsername, limit, skip]);
@@ -58,6 +62,18 @@ function App({api}: Props) {
     fetchBirthsPerYear();
   }, [size]);
 
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        await fetch('http://localhost:8080/api/health-check');
+        setServerStatus("Online");
+        fetchUsers();
+      } catch (error) {
+        setServerStatus("Offline");
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [serverStatus]);
   
   const userStore = {
     users: users,
@@ -71,7 +87,6 @@ function App({api}: Props) {
       const userSaved = await api.addUser(user);
       setUsers([...users, userSaved]);
       setSize(size + 1);
-
     },
     deleteUser: async (userId: number) => {
       await api.deleteUser(userId);
@@ -80,6 +95,7 @@ function App({api}: Props) {
     },
     updateUser: async (user: User) => {
       await api.updateUser(user);
+      fetchBirthsPerYear();
       setUsers(users.map(u => u.id === user.id ? user : u));
     },
     getUser: api.getUser,
@@ -90,9 +106,13 @@ function App({api}: Props) {
     }
   return (
     <>
+      <CheckInternetConnection>
       <UserStoreContext.Provider value={userStore}>
+        {serverStatus === "Offline" ? <div className="flex w-full h-[100vh] text-white bg-black justify-center items-center">Server is offline. Please check your server connection.</div> : 
         <RouterProvider router={router} />
+        }
       </UserStoreContext.Provider>
+      </CheckInternetConnection>
     </>
   )
 }

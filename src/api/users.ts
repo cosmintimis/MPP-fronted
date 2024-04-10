@@ -16,6 +16,16 @@ async function getUsers(sortedByUsername: string, searchByUsername: string, limi
     return { users, size };
 }
 
+async function checkServerStatus(): Promise<boolean> {
+    try {
+        await axios(`${BASE_URL}/api/health-check`, { method: 'GET' });
+        return true;
+    } catch (error) {
+        return false;
+    }
+
+}
+
 async function getBirthsPerYear(): Promise<{[key: string] : number}> {
     const response = await axios(`${BASE_URL}/api/users/births-per-year`, { method: 'GET' });
     return response.data;
@@ -47,5 +57,6 @@ export {
     updateUser,
     getUser,
     getUsers,
-    getBirthsPerYear
+    getBirthsPerYear,
+    checkServerStatus
 }

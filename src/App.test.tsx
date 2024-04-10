@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi} from "vitest";
 import {
   act,
   fireEvent,
@@ -6,16 +6,10 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import React from "react";
 import App from "./App";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import UpdatePage from "./pages/update-page";
-import AddUserPage from "./pages/add-user-page";
-import { USERS as initialUserList } from "@/constants/user";
+
 import "vitest-canvas-mock";
 import userEvent from "@testing-library/user-event";
-import { mock } from "node:test";
-import { time } from "console";
 
 const ResizeObserverMock = vi.fn(() => ({
   observe: vi.fn(),
@@ -26,13 +20,17 @@ const ResizeObserverMock = vi.fn(() => ({
 vi.stubGlobal("ResizeObserver", ResizeObserverMock);
 
 describe("Test", async () => {
-  const mockListOfUsers = [
-    {
+
+  // beforeEach(() => {
+  //   window.history.pushState({}, "", "/");
+  // });
+  const mockListOfUsersWithSize = {
+    users: [ {
       id: 1,
       username: "Cosmin Timis",
       email: "cosmin.timis@gmail.com",
       avatar:
-        "https://robohash.org/e5a84795597420d98d606433f8ad1f70?set=set4&bgset=&size=400x400",
+    "https://robohash.org/e5a84795597420d98d606433f8ad1f70?set=set4&bgset=&size=400x400",
       password: "parolaaiabuna",
       birthdate: new Date("2003-01-01"),
       rating: 8.8,
@@ -43,19 +41,22 @@ describe("Test", async () => {
       username: "Roberto Pitic",
       email: "roberto.pitic@gmail.com",
       avatar:
-        "https://robohash.org/123a37a18fdbba6a742e7446c8166393?set=set4&bgset=&size=400x400",
+      "https://robohash.org/123a37a18fdbba6a742e7446c8166393?set=set4&bgset=&size=400x400",
       password: "parola2004",
       birthdate: new Date("2004-01-01"),
       rating: 9.4,
       address: "Moisei gara",
     },
-  ];
+  ],
+  size: 2,   
+};
   const api = {
-    addUser: vi.fn(),
-    deleteUser: vi.fn(),
-    updateUser: vi.fn(),
-    getUsers: vi.fn().mockReturnValue(mockListOfUsers),
-    getUser: vi.fn().mockReturnValue(mockListOfUsers[0]),
+    addUser: vi.fn().mockReturnValue({}),
+    deleteUser: vi.fn().mockReturnValue({}),
+    updateUser: vi.fn().mockReturnValue({}),
+    getUsers: vi.fn().mockReturnValue(mockListOfUsersWithSize),
+    getUser: vi.fn().mockReturnValue(mockListOfUsersWithSize.users[0]),
+    getBirthsPerYear: vi.fn().mockReturnValue({ "2003": 1, "2004": 1 }),
   };
 
   it("Should delete first user", async () => {
@@ -74,7 +75,9 @@ describe("Test", async () => {
 
     expect(deleteButton).toBeInTheDocument();
 
-    fireEvent.click(deleteButton!);
+    act(() => {
+      fireEvent.click(deleteButton!);
+    });
 
     await waitFor(() => expect(api.deleteUser).toHaveBeenCalledTimes(1));
 
@@ -86,7 +89,7 @@ describe("Test", async () => {
   it("Should update first user name", async () => {
     render(<App api={api} />);
   
-    const firstUser = mockListOfUsers[0];
+    const firstUser = mockListOfUsersWithSize.users[0];
     await waitFor(() => screen.getAllByTestId("carousel-card-test"));
     
     const firstUserCard = screen.getByText(firstUser.username);
@@ -95,7 +98,9 @@ describe("Test", async () => {
     const newUserName = "cosmin1234";
 
    
-    fireEvent.click(updateButton!);
+    act(() => {
+      fireEvent.click(updateButton!);
+    });
   
     const inputUsername = screen.getByTestId('input-username-update');
     const submitButton = screen.getByTestId('submit-update-btn');
@@ -111,175 +116,122 @@ describe("Test", async () => {
 
     await waitFor(() => expect(api.updateUser).toHaveBeenCalledTimes(1));
 
+    const linkHomePage = screen.getByTestId('link-home-page');
+    act(() => {
+      fireEvent.click(linkHomePage);
+    });
+
   });
 
-  // it("Should add a new user", async () => {
-  //   render(
-  //     <React.StrictMode>
-  //       <RouterProvider router={router} />
-  //     </React.StrictMode>
-  //   );
+  it("Should add a new user", async () => {
+    render(<App api={api} />);
 
-  //   // go to add user page
-  //   const link = screen.getByTestId('add-new-user-page');
-  //   act(() => {
-  //     fireEvent.click(link);
-  //   });
+    //go to add user page
+    const link = await screen.getByTestId('add-new-user-page');
+    act(() => {
+      fireEvent.click(link);
+    });
 
-  //   const inputUserid = screen.getByTestId('input-userid');
-  //   const inputUsername = screen.getByTestId('input-username');
-  //   const inputEmail = screen.getByTestId('input-email');
-  //   const inputPassword = screen.getByTestId('input-password');
-  //   const inputAvatar = screen.getByTestId('input-avatar');
-  //   const inputGrade = screen.getByTestId('input-grade');
-  //   const inputAddress = screen.getByTestId('input-address');
-  //   const submitButton = screen.getByTestId('submit-add-btn');
+    const inputUsername = screen.getByTestId('input-username');
+    const inputEmail = screen.getByTestId('input-email');
+    const inputPassword = screen.getByTestId('input-password');
+    const inputAvatar = screen.getByTestId('input-avatar');
+    const inputGrade = screen.getByTestId('input-grade');
+    const inputAddress = screen.getByTestId('input-address');
+    const submitButton = screen.getByTestId('submit-add-btn');
 
-  //   act(() => {
-  //     fireEvent.change(inputUserid, { target: { value: "123" } });
-  //     fireEvent.change(inputUsername, { target: { value: "cosmin" } });
-  //     fireEvent.change(inputEmail, { target: { value: "test@gmail.com" } });
-  //     fireEvent.change(inputPassword, { target: { value: "1234" } });
-  //     fireEvent.change(inputAvatar, { target: { value: "test" } });
-  //     fireEvent.change(inputGrade, { target: { value: "7.5" } });
-  //     fireEvent.change(inputAddress, { target: { value: "test" } });
-  //     fireEvent.click(submitButton);
-  //   }
-  //   );
+    act(() => {
+      fireEvent.change(inputUsername, { target: { value: "test2024" } });
+      fireEvent.change(inputEmail, { target: { value: "test2024@gmail.com" } });
+      fireEvent.change(inputPassword, { target: { value: "test2024" } });
+      fireEvent.change(inputAvatar, { target: { value: "test" } });
+      fireEvent.change(inputGrade, { target: { value: "7.5" } });
+      fireEvent.change(inputAddress, { target: { value: "test" } });
+      fireEvent.click(submitButton);
+    }
+    );
 
-  //   await act(async () => { });
+    await waitFor(() => expect(api.addUser).toHaveBeenCalledTimes(1));
 
-  //   expect(initialUserList.length).toBe(11);
+   
+    /// return to home page
+    const linkHomePage = screen.getByTestId('link-home-page');
+    act(() => {
+      fireEvent.click(linkHomePage);
+    });
 
-  //   /// return to home page
-  //   const linkHomePage = screen.getByTestId('link-home-page');
-  //   act(() => {
-  //     fireEvent.click(linkHomePage);
-  //   });
-  // });
+  });
+  it("test search filter", async () => {
+    render(<App api={api} />);
 
-  // it("test search filter", async () => {
-  //   render(
-  //     <React.StrictMode>
-  //       <RouterProvider router={router} />
-  //     </React.StrictMode>
-  //   );
+    const input = screen.getByTestId('search-test');
 
-  //   const input = screen.getByTestId('search-test');
+    const filtedUsers = mockListOfUsersWithSize.users.filter(user => user.username.includes("Cosmin"));
+    expect(filtedUsers.length).toBe(1);
 
-  //   const firstUserName = initialUserList[0].username;
+    api.getUsers.mockReturnValue({ users: filtedUsers, size: 1 });
 
-  //   act(() => {
-  //     fireEvent.change(input, { target: { value: firstUserName } });
-  //   });
+    act(() => {
+      fireEvent.change(input, { target: { value: "Cosmin" } });
+    });
 
-  //   await act(async () => { });
+    await waitFor(() => expect(api.getUsers).toHaveBeenCalled());
 
-  //   const firstPage = initialUserList.slice(0, 4);
-  //   const filteredList = firstPage.filter(user => user.username.includes(firstUserName));
+    const cards = screen.getAllByTestId('carousel-card-test');
+    expect(cards.length).toBe(1);
 
-  //   const cards = screen.getAllByTestId('carousel-card-test');
-  //   expect(cards.length).toBe(filteredList.length*2);
+    api.getUsers.mockReturnValue(mockListOfUsersWithSize);
+  
+  });
 
-  // });
+  it("test pagination", async () => {
+    render(<App api={api} />);
 
-  // it("test pagination", async () => {
-  //   render(
-  //     <React.StrictMode>
-  //       <RouterProvider router={router} />
-  //     </React.StrictMode>
-  //   );
+    const prevBtn = screen.getByTestId('prev-btn');
+    const nextBtn = screen.getByTestId('next-btn');
 
-  //   const currentPage = screen.getByTestId('page-number');
-  //   expect(currentPage.textContent).toBe("Page: 1");
-  //   expect(initialUserList.length).toBeGreaterThanOrEqual(8);
+    expect(prevBtn).toBeInTheDocument();
+    expect(nextBtn).toBeInTheDocument();
 
-  //   let cards = screen.getAllByTestId('carousel-card-test');
-  //   expect(cards.length).toBe(10);
-  //   expect(screen.getAllByText(initialUserList[0].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[1].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[2].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[3].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[4].username)[0]).toBeInTheDocument();
+    act(() => {
+      fireEvent.click(nextBtn);
+    });
 
-  //   const nextButton = screen.getByTestId('next-btn');
+    const alertContainer = screen.getByTestId('alert-container-test');
+    expect(alertContainer).toBeInTheDocument();
+    expect(alertContainer.textContent).toBe('There are no more pages!');
 
-  //   act(() => {
-  //     fireEvent.click(nextButton);
-  //   });
 
-  //   await act(async () => { });
+    await new Promise((r) => setTimeout(r, 3000));
+    expect(alertContainer.textContent).toBe('');
 
-  //   expect(currentPage.textContent).toBe("Page: 2");
-  //   cards = screen.getAllByTestId('carousel-card-test');
-  //   expect(cards.length).toBe(10);
-  //   expect(screen.getAllByText(initialUserList[5].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[6].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[7].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[8].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[9].username)[0]).toBeInTheDocument();
+ });
 
-  //   const prevButton = screen.getByTestId('prev-btn');
+  it("test bar chart", async () => {
+    render(<App api={api} />);
 
-  //   act(() => {
-  //     fireEvent.click(prevButton);
-  //   }
-  //   );
+    const barChart = screen.getByTestId('bar-chart-test-id');
+    expect(barChart).toBeInTheDocument();
+    expect(barChart.querySelector('canvas')).toBeInTheDocument();
+  });
 
-  //   await act(async () => { });
+  it("test dropdown", async () => {
 
-  //   expect(currentPage.textContent).toBe("Page: 1");
-  //   expect(cards.length).toBe(10);
-  //   expect(screen.getAllByText(initialUserList[0].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[1].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[2].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[3].username)[0]).toBeInTheDocument();
-  //   expect(screen.getAllByText(initialUserList[4].username)[0]).toBeInTheDocument();
+    render(<App api={api} />);
 
-  // });
+    let dropdownBtn = screen.getByTestId('dropdown-btn-test-id');
+    expect(dropdownBtn).toBeInTheDocument();
+    expect(dropdownBtn.getAttribute('data-state')).toBe('closed');
 
-  // it("test bar chart", async () => {
-  //   render(
-  //     <React.StrictMode>
-  //       <RouterProvider router={router} />
-  //     </React.StrictMode>
-  //   );
+    const user = userEvent.setup();
 
-  //   const barChart = screen.getByTestId('bar-chart-test-id');
-  //   expect(barChart).toBeInTheDocument();
-  //   expect(barChart.querySelector('canvas')).toBeInTheDocument();
-  // });
+    await user.click(dropdownBtn);
 
-  // it("test dropdown", async () => {
-  //   render(
-  //     <React.StrictMode>
-  //       <RouterProvider router={router} />
-  //     </React.StrictMode>
-  //   );
+    expect(dropdownBtn.getAttribute('data-state')).toBe('open');
 
-  //   let cards = screen.getAllByTestId('carousel-card-test');
-  //   expect(cards.length).toBe(10);
+    const dropdownItems = screen.getAllByTestId('dropdown-item-test-id');
+    expect(dropdownItems.length).toBe(1);
 
-  //   let dropdownBtn = screen.getByTestId('dropdown-btn-test-id');
-  //   expect(dropdownBtn).toBeInTheDocument();
-  //   expect(dropdownBtn.getAttribute('data-state')).toBe('closed');
-
-  //   const user = userEvent.setup();
-
-  //   await user.click(dropdownBtn);
-
-  //   expect(dropdownBtn.getAttribute('data-state')).toBe('open');
-
-  //   const dropdownItems = screen.getAllByTestId('dropdown-item-test-id');
-  //   expect(dropdownItems.length).toBe(2);
-
-  //   const dropdownItem = dropdownItems[1];
-  //   expect(dropdownItem).toBeInTheDocument();
-
-  //   await user.click(dropdownItem);
-
-  //   cards = screen.getAllByTestId('carousel-card-test');
-  //   expect(cards.length).toBe(20);
-  // }
-  // );
+  }
+  );
 });

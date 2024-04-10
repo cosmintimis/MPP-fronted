@@ -70,7 +70,6 @@ export default function UpdatePage() {
 
     async function updateEntity(values: z.infer<typeof formSchema>) {
         const alertContainer = document.getElementById("alert-container");
-        console.log("nu se apeleaza~!~!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         if (!userId) return;
 
         await updateUser({
