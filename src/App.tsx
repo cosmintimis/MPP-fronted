@@ -22,24 +22,24 @@ const router = createBrowserRouter([
     element: <AddUserPage />
   }
 ]);
-type Props= {
+type Props = {
   api: {
     addUser: (user: Omit<User, 'id'>) => Promise<User>,
     deleteUser: (userId: number) => Promise<void>,
     updateUser: (user: User) => Promise<User>,
     getUsers: (sortedByUsername: string, searchByUsername: string, limit: number, skip: number) => Promise<UserListWithSize>,
     getUser: (userId: number) => Promise<User>,
-    getBirthsPerYear: () => Promise<{[key: string] : number}>
+    getBirthsPerYear: () => Promise<{ [key: string]: number }>
   }
 }
-function App({api}: Props) {
+function App({ api }: Props) {
   const [users, setUsers] = useState<User[]>([])
-  const [birthsPerYear, setBirthsPerYear] = useState<{[key: string] : number}>({});
-  const[sortedByUsername, setSortedByUsername] = useState<string>('');
-  const[searchByUsername, setSearchByUsername] = useState<string>('');
-  const[limit, setLimit] = useState<number>(5);
-  const[skip, setSkip] = useState<number>(0);
-  const[size, setSize] = useState<number>(0);
+  const [birthsPerYear, setBirthsPerYear] = useState<{ [key: string]: number }>({});
+  const [sortedByUsername, setSortedByUsername] = useState<string>('');
+  const [searchByUsername, setSearchByUsername] = useState<string>('');
+  const [limit, setLimit] = useState<number>(5);
+  const [skip, setSkip] = useState<number>(0);
+  const [size, setSize] = useState<number>(0);
   const [serverStatus, setServerStatus] = useState("Online");
   async function fetchUsers() {
     const UserListWithSize = await api.getUsers(sortedByUsername, searchByUsername, limit, skip);
@@ -52,29 +52,30 @@ function App({api}: Props) {
     setBirthsPerYear(birthsPerYear);
   }
 
- 
+
 
   useEffect(() => {
     fetchUsers();
-  }, [sortedByUsername, searchByUsername, limit, skip]);
+  }, [sortedByUsername, searchByUsername, limit, skip, serverStatus]);
 
   useEffect(() => {
     fetchBirthsPerYear();
-  }, [size]);
+  }, [size, serverStatus]);
 
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
         await fetch('http://localhost:8080/api/health-check');
-        setServerStatus("Online");
-        fetchUsers();
+        if (serverStatus === "Offline") {
+          setServerStatus("Online");
+        }
       } catch (error) {
         setServerStatus("Offline");
       }
     }, 5000);
     return () => clearInterval(interval);
   }, [serverStatus]);
-  
+
   const userStore = {
     users: users,
     size: size,
@@ -103,15 +104,15 @@ function App({api}: Props) {
     setSearchByUsername: setSearchByUsername,
     setLimit: setLimit,
     setSkip: setSkip
-    }
+  }
   return (
     <>
       <CheckInternetConnection>
-      <UserStoreContext.Provider value={userStore}>
-        {serverStatus === "Offline" ? <div className="flex w-full h-[100vh] text-white bg-black justify-center items-center">Server is offline. Please check your server connection.</div> : 
-        <RouterProvider router={router} />
-        }
-      </UserStoreContext.Provider>
+        <UserStoreContext.Provider value={userStore}>
+          {serverStatus === "Offline" ? <div className="flex w-full h-[100vh] text-white bg-black justify-center items-center">Server is offline. Please check your server connection.</div> :
+            <RouterProvider router={router} />
+          }
+        </UserStoreContext.Provider>
       </CheckInternetConnection>
     </>
   )
