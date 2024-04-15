@@ -9,6 +9,8 @@ type UserStore = {
     searchByUsername: string;
     limit: number;
     skip: number;
+    startBirthDate: Date | undefined;
+    endBirthDate: Date | undefined;
     addUser: (user: Omit<User, 'id'>) => Promise<void>;
     deleteUser: (userId: number) => Promise<void>;
     updateUser: (user: User) => Promise<void>;
@@ -17,6 +19,8 @@ type UserStore = {
     setSearchByUsername: (searchByUsername: string) => void;
     setLimit: (limit: number) => void;
     setSkip: (skip: number) => void;
+    setStartBirthDate: (startBirthDate: Date) => void;
+    setEndBirthDate: (endBirthDate: Date) => void;
 }
 const UserStoreContext = createContext<UserStore>({
     users: [],
@@ -26,6 +30,8 @@ const UserStoreContext = createContext<UserStore>({
     searchByUsername: '',
     limit: 0,
     skip: 0,
+    startBirthDate: undefined,
+    endBirthDate: undefined,
     addUser: async () => { },
     deleteUser: async () => { },
     updateUser: async () => { },
@@ -34,6 +40,8 @@ const UserStoreContext = createContext<UserStore>({
     setSearchByUsername: () => { },
     setLimit: () => { },
     setSkip: () => { },
+    setStartBirthDate: () => { },
+    setEndBirthDate: () => { },
 });
 
 export default UserStoreContext;

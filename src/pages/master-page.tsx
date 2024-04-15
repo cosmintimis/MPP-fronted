@@ -15,23 +15,31 @@ import {
     DropdownMenuRadioItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {  useState } from "react";
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
 import { displayAlert } from "@/components/ui/custom-alert";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format, set } from "date-fns";
 
 export default function MasterPage() {
 
-    const { birthsPerYear, size, limit, setSearchByUsername, setSortedByUsername, setSkip, setLimit } = useUserStore();
+    const { birthsPerYear, size, limit, setSearchByUsername, setSortedByUsername, setSkip, setLimit, startBirthDate, endBirthDate, setStartBirthDate, setEndBirthDate } = useUserStore();
     const [currentPage, setCurrentPage] = useState(0);
-   
 
-    function handleSearchByUsername(){
+    function handleSearchByUsername() {
         const input = document.getElementById("myInput") as HTMLInputElement;
         const currentUsername = input.value;
         setSearchByUsername(currentUsername);
     }
 
-    function handlePreviousPage(){
+    function handlePreviousPage() {
         const page = currentPage - 1;
         const alertContainer = document.getElementById("alert-container");
         if (page < 0) {
@@ -43,7 +51,7 @@ export default function MasterPage() {
         setSkip(page * limit);
     }
 
-    function handleNextPage(){
+    function handleNextPage() {
         const page = currentPage + 1;
         const alertContainer = document.getElementById("alert-container");
         if (page >= Math.ceil(size / limit)) {
@@ -57,7 +65,7 @@ export default function MasterPage() {
     }
 
 
- 
+
     const userDataBarChart: ChartData<"bar"> = {
         labels: Object.keys(birthsPerYear),
         datasets: [
@@ -103,57 +111,111 @@ export default function MasterPage() {
         numbersPerPageToBeSelected.push(i);
     }
     return (
-    <>
-        <div className="h-[100vh] relative w-full bg-black flex flex-col items-center justify-start overflow-hidden rounded-md">
-            <div className="w-full absolute inset-0 h-screen z-0">
-            <SparklesCore
-                id="tsparticlesfullpage"
-                background="transparent"
-                minSize={0.6}
-                maxSize={1.4}
-                particleDensity={50}
-                className="w-full h-full"
-                particleColor="#FFFFFF"
-            />
+        <>
+            <div className="h-[100vh] relative w-full bg-black flex flex-col items-center justify-start overflow-hidden rounded-md">
+                <div className="w-full absolute inset-0 h-screen z-0">
+                    <SparklesCore
+                        id="tsparticlesfullpage"
+                        background="transparent"
+                        minSize={0.6}
+                        maxSize={1.4}
+                        particleDensity={50}
+                        className="w-full h-full"
+                        particleColor="#FFFFFF"
+                    />
+                </div>
+                <div className="relative w-full h-[350px] z-10">
+                    <AutoplayCarousel />
+                </div>
+                <div className="flex w-full mt-8 justify-center z-10">
+                    <Link to={'/addUser'} data-testid="add-new-user-page" className={buttonVariants({ variant: "adding" })}>Add User</Link>
+                </div>
+                <div className="flex w-full mt-8 justify-between z-10">
+                    <Button data-testid="prev-btn" onClick={handlePreviousPage} className="ml-10" variant={"pagination"}>Previous Page</Button>
+                    <div className="flex justify-center">
+                        <p className="text-white pr-6">Count:{limit}</p>
+                        <Button data-testid="sort-btn" onClick={() => setSortedByUsername("ascending")} className="mr-2" variant={"pagination"}>Sort by username</Button>
+                        <Input data-testid="search-test" id="myInput" type="text" placeholder="Search user..." onChange={handleSearchByUsername} />
+                        <DropdownMenu >
+                            <DropdownMenuTrigger asChild>
+                                <Button data-testid="dropdown-btn-test-id" variant="outline" className="ml-2">Users per Page</Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent data-testid="dropdown-menu-content-test-id">
+                                <DropdownMenuLabel>Select desired number</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuRadioGroup>
+                                    {
+                                        numbersPerPageToBeSelected.map((numberPerPage) => (
+                                            <DropdownMenuRadioItem key={numberPerPage} data-testid="dropdown-item-test-id" value={numberPerPage.toString()} onClick={() => { setLimit(numberPerPage) }}>
+                                                {numberPerPage}
+                                            </DropdownMenuRadioItem>
+                                        ))
+                                    }
+                                </DropdownMenuRadioGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                    <div className="mx-4 flex justify-around">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-[200px] justify-start text-left font-normal mr-2",
+                                            !startBirthDate && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {startBirthDate ? format(startBirthDate, "PPP") : <span>Pick a start birth date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={startBirthDate}
+                                        onSelect={(date) => {
+                                            if(date)
+                                                setStartBirthDate(date);
+                                        }}
+                                        initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-[200px] justify-start text-left font-normal",
+                                            !endBirthDate && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {endBirthDate ? format(endBirthDate, "PPP") : <span>Pick an end birth date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={endBirthDate}
+                                        onSelect={(date) => {
+                                            if(date)
+                                                setEndBirthDate(date);
+                                               
+                                        }}
+                                        initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+
+                       </div>
+                    <Button data-testid="next-btn" onClick={handleNextPage} className="mr-10" variant={"pagination"}>Next Page</Button>
+                </div>
+                <div data-testid="bar-chart-test-id" className="h-[200px] w-[300px] mt-8 z-10">
+                    <BarChart chartData={userDataBarChart} chartOptions={chartOptions} />
+                </div>
+                <div className="absolute top-0 h-[75px] hidden justify-center items-center w-full z-10" id="alert-container" data-testid="alert-container-test"></div>
             </div>
-            <div className="relative w-full h-[350px] z-10">
-            <AutoplayCarousel />
-            </div>
-            <div className="flex w-full mt-8 justify-center z-10">
-            <Link to={'/addUser'} data-testid="add-new-user-page" className={buttonVariants({ variant: "adding" })}>Add User</Link>
-            </div>
-            <div className="flex w-full mt-8 justify-between z-10">
-            <Button data-testid="prev-btn" onClick={handlePreviousPage} className="ml-10" variant={"pagination"}>Previous Page</Button>
-            <div className="flex justify-center">
-            <p className="text-white pr-6">Count:{limit}</p>
-            <Button data-testid="sort-btn" onClick={() => setSortedByUsername("ascending")} className="mr-2" variant={"pagination"}>Sort by username</Button>
-            <Input data-testid="search-test" id="myInput" type="text" placeholder="Search user..."  onChange={handleSearchByUsername} />
-            <DropdownMenu >
-                        <DropdownMenuTrigger asChild>
-                            <Button data-testid="dropdown-btn-test-id" variant="outline" className="ml-2">Users per Page</Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent data-testid="dropdown-menu-content-test-id">
-                            <DropdownMenuLabel>Select desired number</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuRadioGroup>
-                                {
-                                    numbersPerPageToBeSelected.map((numberPerPage) => (
-                                        <DropdownMenuRadioItem key={numberPerPage} data-testid="dropdown-item-test-id" value={numberPerPage.toString()} onClick={() => { setLimit(numberPerPage) }}>
-                                            {numberPerPage}
-                                        </DropdownMenuRadioItem>
-                                    ))
-                                }
-                            </DropdownMenuRadioGroup>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-            </div>
-            <Button data-testid="next-btn" onClick={handleNextPage} className="mr-10" variant={"pagination"}>Next Page</Button>
-            </div>
-            <div data-testid="bar-chart-test-id" className="h-[200px] w-[300px] mt-8 z-10">
-                        <BarChart chartData={userDataBarChart} chartOptions={chartOptions} />
-            </div>
-            <div className="absolute top-0 h-[75px] hidden justify-center items-center w-full z-10" id="alert-container" data-testid="alert-container-test"></div>
-        </div>
-    </>
+        </>
     );
-  }
+}
