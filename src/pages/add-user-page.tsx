@@ -58,7 +58,12 @@ export default function AddUserPage() {
     async function addEntity(values: z.infer<typeof formSchema>) {
         const alertContainer = document.getElementById("alert-container");
 
-        await addUser(values); 
+       await addUser(
+            {
+            ...values,
+            products: []
+            }
+       ); 
         if (alertContainer) {
             displayAlert(alertContainer, "success", "User added successfully");
         }

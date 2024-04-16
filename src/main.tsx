@@ -3,6 +3,7 @@ import App from './App.tsx'
 import './index.css'
 import { addUser, deleteUser, getUser, getUsers, updateUser, getBirthsPerYear } from './api/users';
 import React from 'react';
+import { addProduct, deleteProduct, updateProduct } from './api/products.ts';
 
 const api = {
   addUser,
@@ -10,7 +11,10 @@ const api = {
   getUser,
   getUsers,
   updateUser,
-  getBirthsPerYear
+  getBirthsPerYear,
+  addProduct,
+  deleteProduct,
+  updateProduct
 }
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

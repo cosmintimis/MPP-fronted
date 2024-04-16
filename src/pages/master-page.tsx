@@ -16,7 +16,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import {  useState } from "react";
 import { displayAlert } from "@/components/ui/custom-alert";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -26,11 +26,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from "@/components/ui/table"
 
 export default function MasterPage() {
 
-    const { birthsPerYear, size, limit, setSearchByUsername, setSortedByUsername, setSkip, setLimit, startBirthDate, endBirthDate, setStartBirthDate, setEndBirthDate } = useUserStore();
+    const { birthsPerYear, size, limit, setSearchByUsername, setSortedByUsername, setSkip, setLimit, startBirthDate, endBirthDate, setStartBirthDate, setEndBirthDate, users, selectedUserId, deleteProduct } = useUserStore();
     const [currentPage, setCurrentPage] = useState(0);
 
     function handleSearchByUsername() {
@@ -110,6 +119,44 @@ export default function MasterPage() {
     for (let i = 10; i <= size; i += 5) {
         numbersPerPageToBeSelected.push(i);
     }
+
+    const handleDeleteProduct = async (productId: number) => {
+        const alertContainer = document.getElementById("alert-container");
+        try {
+            await deleteProduct(productId);
+            if (alertContainer)
+                displayAlert(alertContainer, "success", "Product deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting item:", error);
+        }
+      };
+    
+    function populateProductsTable() {
+        if(selectedUserId === -1)
+            return;
+
+        const userIndex = users.findIndex((user) => user.id === selectedUserId);
+
+        if(userIndex === -1)
+            return;
+    
+        return users[userIndex].products.map((product) => (
+            <TableRow key={product.id}>
+                <TableCell>{product.name}</TableCell>
+                <TableCell>{product.description}</TableCell>
+                <TableCell>{product.price.toFixed(2)}</TableCell>
+                <TableCell>
+                    <Link to={`/addEditProduct/${product.id}`} className={buttonVariants({ variant: "default" })}>Edit</Link>
+                </TableCell>
+                <TableCell>
+                    <Button onClick={() => handleDeleteProduct(product.id)}  variant={"destructive"}>Delete</Button>
+                </TableCell>
+                
+                
+            </TableRow>
+        ))
+    }
+
     return (
         <>
             <div className="h-[100vh] relative w-full bg-black flex flex-col items-center justify-start overflow-hidden rounded-md">
@@ -211,8 +258,30 @@ export default function MasterPage() {
                        </div>
                     <Button data-testid="next-btn" onClick={handleNextPage} className="mr-10" variant={"pagination"}>Next Page</Button>
                 </div>
+                <div className="relative w-full flex item-center justify justify-around mt-20">
+                <div className="w-[500px] text-white z-10 max-h-[300px] overflow-scroll">
+                    <Table>
+                        <TableCaption>Products of selected user.</TableCaption>
+                        <TableCaption className="mb-10">
+                            <Link to={'/addEditProduct'} className={buttonVariants({ variant: "adding" })}>Add Product</Link>
+                        </TableCaption>
+                        <TableHeader>
+                            <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Description</TableHead>
+                            <TableHead>Price</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {
+                            populateProductsTable()
+                        }
+                        </TableBody>
+                    </Table>
+                </div>
                 <div data-testid="bar-chart-test-id" className="h-[200px] w-[300px] mt-8 z-10">
                     <BarChart chartData={userDataBarChart} chartOptions={chartOptions} />
+                </div>
                 </div>
                 <div className="absolute top-0 h-[75px] hidden justify-center items-center w-full z-10" id="alert-container" data-testid="alert-container-test"></div>
             </div>

@@ -2,11 +2,13 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import './App.css'
 import MasterPage from './pages/master-page'
 import AddUserPage from './pages/add-user-page';
-import UpdatePage from './pages/update-page';
+import UpdateUserPage from './pages/update-user-page';
 import UserStoreContext from './store/users';
-import { User, UserListWithSize } from './constants/user';
+import { Product, User, UserListWithSize } from './constants/user';
 import { useEffect, useState } from 'react';
 import CheckInternetConnection from './components/ui/checkInternetConnection';
+import AddEditProductPage from './pages/add-edit-product-page';
+import { addProduct } from './api/products';
 
 const router = createBrowserRouter([
   {
@@ -15,11 +17,15 @@ const router = createBrowserRouter([
   },
   {
     path: "/update/:userId",
-    element: <UpdatePage />
+    element: <UpdateUserPage />
   },
   {
     path: "/addUser",
     element: <AddUserPage />
+  },
+  {
+    path: "/addEditProduct/:productId?",
+    element: <AddEditProductPage />
   }
 ]);
 type Props = {
@@ -29,7 +35,10 @@ type Props = {
     updateUser: (user: User) => Promise<User>,
     getUsers: (sortedByUsername: string, searchByUsername: string, limit: number, skip: number, startBirthDate: string, endBirthDate: string) => Promise<UserListWithSize>,
     getUser: (userId: number) => Promise<User>,
-    getBirthsPerYear: () => Promise<{ [key: string]: number }>
+    getBirthsPerYear: () => Promise<{ [key: string]: number }>,
+    addProduct: (product: Omit<Product, 'id'>, userId: number) => Promise<Product>,
+    deleteProduct: (productId: number) => Promise<void>,
+    updateProduct: (product: Product) => Promise<Product>
   }
 }
 function App({ api }: Props) {
@@ -43,6 +52,7 @@ function App({ api }: Props) {
   const [serverStatus, setServerStatus] = useState("Online");
   const [startBirthDate, setStartBirthDate] = useState<Date | undefined>();
   const [endBirthDate, setEndBirthDate] = useState<Date | undefined>();
+  const [selectedUserId, setSelectedUserId] = useState(-1);
   async function fetchUsers() {
 
     if(startBirthDate === undefined || endBirthDate === undefined){
@@ -99,6 +109,7 @@ function App({ api }: Props) {
     skip: skip,
     startBirthDate: startBirthDate,
     endBirthDate: endBirthDate,
+    selectedUserId: selectedUserId,
     addUser: async (user: Omit<User, 'id'>) => {
       const userSaved = await api.addUser(user);
       setUsers([...users, userSaved]);
@@ -123,17 +134,30 @@ function App({ api }: Props) {
     setLimit: setLimit,
     setSkip: setSkip,
     setStartBirthDate: setStartBirthDate,
-    setEndBirthDate: setEndBirthDate
+    setEndBirthDate: setEndBirthDate,
+    setSelectedUserId: setSelectedUserId,
+    addProduct: async (product: Omit<Product, 'id'>, userId: number) => {
+      await api.addProduct(product, userId);
+      fetchUsers();
+    },
+    deleteProduct: async (productId: number) => {
+      await api.deleteProduct(productId);
+      fetchUsers();
+    },
+    updateProduct: async (product: Product) => {
+      await api.updateProduct(product);
+      fetchUsers();
+    }
   }
   return (
     <>
-      <CheckInternetConnection>
+      {/* <CheckInternetConnection> */}
         <UserStoreContext.Provider value={userStore}>
           {serverStatus === "Offline" ? <div className="flex w-full h-[100vh] text-white bg-black justify-center items-center">Server is offline. Please check your server connection.</div> :
             <RouterProvider router={router} />
           }
         </UserStoreContext.Provider>
-      </CheckInternetConnection>
+      {/* </CheckInternetConnection> */}
     </>
   )
 }

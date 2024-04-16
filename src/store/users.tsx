@@ -1,4 +1,4 @@
-import { User } from "@/constants/user";
+import { Product, User } from "@/constants/user";
 import { createContext, useContext } from "react";
 
 type UserStore = {
@@ -21,6 +21,11 @@ type UserStore = {
     setSkip: (skip: number) => void;
     setStartBirthDate: (startBirthDate: Date) => void;
     setEndBirthDate: (endBirthDate: Date) => void;
+    selectedUserId: number;
+    setSelectedUserId: (selectedUser: number) => void;
+    addProduct: (product: Omit<Product, 'id'>, userId: number) => Promise<void>;
+    deleteProduct: (productId: number) => Promise<void>;
+    updateProduct: (product: Product) => Promise<void>;
 }
 const UserStoreContext = createContext<UserStore>({
     users: [],
@@ -42,6 +47,11 @@ const UserStoreContext = createContext<UserStore>({
     setSkip: () => { },
     setStartBirthDate: () => { },
     setEndBirthDate: () => { },
+    selectedUserId: -1,
+    setSelectedUserId: () => { },
+    addProduct: async () => {},
+    deleteProduct: async () => { },
+    updateProduct: async () => { },
 });
 
 export default UserStoreContext;

@@ -28,9 +28,9 @@ import { displayAlert } from "@/components/ui/custom-alert";
 import { useUserStore } from "@/store/users";
 
 
-export default function UpdatePage() {
+export default function UpdateUserPage() {
     const { userId } = useParams<{ userId: string }>();
-    const { updateUser, getUser } = useUserStore();
+    const { updateUser, getUser, users } = useUserStore();
 
     const [date, setDate] = React.useState<Date | undefined>();
 
@@ -72,9 +72,12 @@ export default function UpdatePage() {
         const alertContainer = document.getElementById("alert-container");
         if (!userId) return;
 
+        const currentUser = users.find((user) => user.id === parseInt(userId));
+
         await updateUser({
             id: parseInt(userId),
-            ...values
+            ...values,
+            products: currentUser?.products || []
         });
 
         if (alertContainer) {
