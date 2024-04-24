@@ -9,6 +9,8 @@ import { useEffect, useState } from 'react';
 import CheckInternetConnection from './components/ui/checkInternetConnection';
 import AddEditProductPage from './pages/add-edit-product-page';
 import { addProduct } from './api/products';
+import { c } from 'node_modules/vite/dist/node/types.d-aGj9QkWt';
+
 
 const router = createBrowserRouter([
   {
@@ -28,6 +30,14 @@ const router = createBrowserRouter([
     element: <AddEditProductPage />
   }
 ]);
+
+
+let fakeId = -1;
+let newUsersToBeAdded = [] as User[];
+let usersThatNeedToBeUpdated = [] as User[];
+let usersThatNeedToBeDeleted = [] as number[];
+let chartData = {} as { [key: string]: number };
+
 type Props = {
   api: {
     addUser: (user: Omit<User, 'id'>) => Promise<User>,
@@ -53,6 +63,7 @@ function App({ api }: Props) {
   const [startBirthDate, setStartBirthDate] = useState<Date | undefined>();
   const [endBirthDate, setEndBirthDate] = useState<Date | undefined>();
   const [selectedUserId, setSelectedUserId] = useState(-1);
+
   async function fetchUsers() {
 
     if(startBirthDate === undefined || endBirthDate === undefined){
@@ -71,8 +82,43 @@ function App({ api }: Props) {
   }
 
   async function fetchBirthsPerYear() {
-    const birthsPerYear = await api.getBirthsPerYear();
-    setBirthsPerYear(birthsPerYear);
+    if(serverStatus === "Offline"){
+
+      const charDataUpdated = {...chartData};
+
+      for(let i = 0; i < usersThatNeedToBeDeleted.length; i++){
+        const userId = usersThatNeedToBeDeleted[i];
+        const user = users.find(u => u.id === userId);
+        if(!user) continue;
+        const birthYear = user.birthdate.getFullYear().toString();
+        if(charDataUpdated[birthYear] > 1){
+          charDataUpdated[birthYear] -= 1;
+        }
+        else{
+          delete charDataUpdated[birthYear];
+        }
+      }
+
+      for(let i = 0; i < newUsersToBeAdded.length; i++){
+        const user = newUsersToBeAdded[i];
+        const birthYear = user.birthdate.getFullYear().toString();
+        if(charDataUpdated[birthYear]){
+          charDataUpdated[birthYear] += 1;
+        }
+        else{
+          charDataUpdated[birthYear] = 1;
+        }
+      }
+
+      setBirthsPerYear(charDataUpdated);
+    }
+    else{
+      const birthsPerYear = await api.getBirthsPerYear();
+      setBirthsPerYear(birthsPerYear);
+
+      chartData = {...birthsPerYear};
+
+    }
   }
 
 
@@ -91,6 +137,8 @@ function App({ api }: Props) {
         await fetch('http://localhost:8080/api/health-check');
         if (serverStatus === "Offline") {
           setServerStatus("Online");
+          await syncData();
+          fetchUsers();
         }
       } catch (error) {
         setServerStatus("Offline");
@@ -98,6 +146,43 @@ function App({ api }: Props) {
     }, 5000);
     return () => clearInterval(interval);
   }, [serverStatus]);
+
+ 
+
+  useEffect(() => {
+
+    // const socket = new WebSocket('ws://localhost:8080/websocket-broadcaster');
+    
+    // socket.onopen = () => {
+    //   console.log('open');
+    // };
+
+    // socket.onmessage = (e: MessageEvent) => {
+    //   fetchBirthsPerYear();
+    // }
+
+    // socket.onclose = () => {
+    //   console.log('close');
+    // }
+
+  },[serverStatus]);
+
+
+ async function syncData(){
+      for(let i = 0; i < newUsersToBeAdded.length; i++){
+        await api.addUser(newUsersToBeAdded[i]);
+      }
+      for(let i = 0; i < usersThatNeedToBeUpdated.length; i++){
+        await api.updateUser(usersThatNeedToBeUpdated[i]);
+      }
+      for(let i = 0; i < usersThatNeedToBeDeleted.length; i++){
+        await api.deleteUser(usersThatNeedToBeDeleted[i]);
+      }
+      newUsersToBeAdded = [];
+      usersThatNeedToBeUpdated = [];
+      usersThatNeedToBeDeleted = [];
+    
+  }
 
   const userStore = {
     users: users,
@@ -111,22 +196,73 @@ function App({ api }: Props) {
     endBirthDate: endBirthDate,
     selectedUserId: selectedUserId,
     addUser: async (user: Omit<User, 'id'>) => {
-      const userSaved = await api.addUser(user);
-      setUsers([...users, userSaved]);
-      setSize(size + 1);
-      fetchUsers();
+      if(serverStatus === "Offline"){
+      const newUser = {...user, id: fakeId};
+      fakeId = fakeId - 1;
+      setUsers([...users, newUser]);
+      newUsersToBeAdded.push(newUser);
+      fetchBirthsPerYear();
+      }else
+      { 
+        const userSaved = await api.addUser(user);
+        setUsers([...users, userSaved]);
+        setSize(size + 1);
+        fetchUsers();}
     },
     deleteUser: async (userId: number) => {
-      await api.deleteUser(userId);
-      setUsers(users.filter(user => user.id !== userId));
-      setSize(size - 1);
-      fetchUsers();
+     if(serverStatus === "Offline"){
+      setUsers(users.filter(u => u.id !== userId));
+      if(userId > 0)
+        usersThatNeedToBeDeleted.push(userId); 
+      else{
+        newUsersToBeAdded = newUsersToBeAdded.filter(u => u.id !== userId);
+      }
+      fetchBirthsPerYear();
+     }
+     else{
+        await api.deleteUser(userId);
+        setUsers(users.filter(user => user.id !== userId));
+        setSize(size - 1);
+        fetchUsers();
+     }
     },
     updateUser: async (user: User) => {
-      await api.updateUser(user);
-      fetchBirthsPerYear();
-      setUsers(users.map(u => u.id === user.id ? user : u));
-      fetchUsers();
+      if(serverStatus === "Offline"){
+        const userIndex = users.findIndex(u => u.id === user.id);
+        if(user.id > 0)
+          {
+            usersThatNeedToBeUpdated.push(user);
+
+            if(user.birthdate != users[userIndex].birthdate){
+              const birthYear = user.birthdate.getFullYear().toString();
+              const oldBirthYear = users[userIndex].birthdate.getFullYear().toString();
+              if(chartData[birthYear]){
+                chartData[birthYear] += 1;
+              }
+              else{
+                chartData[birthYear] = 1;
+              }
+              if(chartData[oldBirthYear]){
+                chartData[oldBirthYear] -= 1;
+              }
+              else{
+                delete chartData[oldBirthYear];
+              }
+            }
+          }
+        const newUsers = [...users];
+        newUsers[userIndex] = user;
+        setUsers(newUsers);
+        newUsersToBeAdded = newUsersToBeAdded.map(u => u.id === user.id ? user : u);
+    
+        fetchBirthsPerYear();
+      }
+      else{
+        await api.updateUser(user);
+        fetchBirthsPerYear();
+        setUsers(users.map(u => u.id === user.id ? user : u));
+        fetchUsers();
+      }
     },
     getUser: api.getUser,
     setSortedByUsername: setSortedByUsername,
@@ -151,13 +287,12 @@ function App({ api }: Props) {
   }
   return (
     <>
-      {/* <CheckInternetConnection> */}
+      <CheckInternetConnection>
         <UserStoreContext.Provider value={userStore}>
-          {serverStatus === "Offline" ? <div className="flex w-full h-[100vh] text-white bg-black justify-center items-center">Server is offline. Please check your server connection.</div> :
+          {/* {serverStatus === "Offline" ? <div className="flex w-full h-[100vh] text-white bg-black justify-center items-center">Server is offline. Please check your server connection.</div> :  }*/}
             <RouterProvider router={router} />
-          }
         </UserStoreContext.Provider>
-      {/* </CheckInternetConnection> */}
+      </CheckInternetConnection>
     </>
   )
 }

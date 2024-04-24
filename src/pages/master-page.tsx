@@ -279,7 +279,7 @@ export default function MasterPage() {
                         </TableBody>
                     </Table>
                 </div>
-                <div data-testid="bar-chart-test-id" className="h-[200px] w-[300px] mt-8 z-10">
+                <div data-testid="bar-chart-test-id" className="h-[300px] w-[500px] mt-8 z-10">
                     <BarChart chartData={userDataBarChart} chartOptions={chartOptions} />
                 </div>
                 </div>

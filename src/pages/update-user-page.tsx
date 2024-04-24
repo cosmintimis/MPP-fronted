@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { displayAlert } from "@/components/ui/custom-alert";
 import { useUserStore } from "@/store/users";
+import { User } from "@/constants/user";
 
 
 export default function UpdateUserPage() {
@@ -51,7 +52,18 @@ export default function UpdateUserPage() {
 
     async function updateUserDefault() {
         if (!userId) return;
-        const user = await getUser(parseInt(userId));
+
+        let user: User | undefined;
+
+        const index = users.findIndex((user) => user.id === parseInt(userId));
+
+        if(index === -1){
+            user = await getUser(parseInt(userId));
+        }
+        else{
+            user = users.find((user) => user.id === parseInt(userId));
+        }
+
         setDate(user?.birthdate);
         form.reset({
             username: user?.username,

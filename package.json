@@ -36,6 +36,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.51.1",
     "react-router-dom": "^6.22.3",
+    "sockjs-client": "^1.6.1",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4"
@@ -50,6 +51,7 @@
     "@types/react-detect-offline": "^2.4.5",
     "@types/react-dom": "^18.2.21",
     "@types/react-router-dom": "^5.3.3",
+    "@types/sockjs-client": "^1.5.4",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
     "@vitejs/plugin-react-swc": "^3.5.0",
