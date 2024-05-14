@@ -8,8 +8,6 @@ import { Product, User, UserListWithSize } from './constants/user';
 import { useEffect, useState } from 'react';
 import CheckInternetConnection from './components/ui/checkInternetConnection';
 import AddEditProductPage from './pages/add-edit-product-page';
-import { addProduct } from './api/products';
-import { c } from 'node_modules/vite/dist/node/types.d-aGj9QkWt';
 
 
 const router = createBrowserRouter([
@@ -43,7 +41,7 @@ type Props = {
     addUser: (user: Omit<User, 'id'>) => Promise<User>,
     deleteUser: (userId: number) => Promise<void>,
     updateUser: (user: User) => Promise<User>,
-    getUsers: (sortedByUsername: string, searchByUsername: string, limit: number, skip: number, startBirthDate: string, endBirthDate: string) => Promise<UserListWithSize>,
+    getUsers: (sortedByUsername: string, searchByUsername: string, pageSize: number, currentPage: number, startBirthDate: string, endBirthDate: string) => Promise<UserListWithSize>,
     getUser: (userId: number) => Promise<User>,
     getBirthsPerYear: () => Promise<{ [key: string]: number }>,
     addProduct: (product: Omit<Product, 'id'>, userId: number) => Promise<Product>,
@@ -56,8 +54,8 @@ function App({ api }: Props) {
   const [birthsPerYear, setBirthsPerYear] = useState<{ [key: string]: number }>({});
   const [sortedByUsername, setSortedByUsername] = useState<string>('');
   const [searchByUsername, setSearchByUsername] = useState<string>('');
-  const [limit, setLimit] = useState<number>(5);
-  const [skip, setSkip] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(5);
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const [size, setSize] = useState<number>(0);
   const [serverStatus, setServerStatus] = useState("Online");
   const [startBirthDate, setStartBirthDate] = useState<Date | undefined>();
@@ -68,13 +66,13 @@ function App({ api }: Props) {
 
     if(startBirthDate === undefined || endBirthDate === undefined){
 
-      const UserListWithSize = await api.getUsers(sortedByUsername, searchByUsername, limit, skip, '', '');
+      const UserListWithSize = await api.getUsers(sortedByUsername, searchByUsername, pageSize, currentPage, '', '');
       setUsers(UserListWithSize.users);
       setSize(UserListWithSize.size);
     }
     else{
 
-      const UserListWithSize = await api.getUsers(sortedByUsername, searchByUsername, limit, skip, startBirthDate.toISOString().split('T')[0], endBirthDate.toISOString().split('T')[0]);
+      const UserListWithSize = await api.getUsers(sortedByUsername, searchByUsername, pageSize, currentPage, startBirthDate.toISOString().split('T')[0], endBirthDate.toISOString().split('T')[0]);
       setUsers(UserListWithSize.users);
       setSize(UserListWithSize.size);
 
@@ -125,7 +123,7 @@ function App({ api }: Props) {
 
   useEffect(() => {
     fetchUsers();
-  }, [sortedByUsername, searchByUsername, limit, skip, serverStatus, startBirthDate, endBirthDate]);
+  }, [sortedByUsername, searchByUsername, pageSize, currentPage, serverStatus, startBirthDate, endBirthDate]);
 
   useEffect(() => {
     fetchBirthsPerYear();
@@ -190,8 +188,8 @@ function App({ api }: Props) {
     birthsPerYear: birthsPerYear,
     sortedByUsername: sortedByUsername,
     searchByUsername: searchByUsername,
-    limit: limit,
-    skip: skip,
+    pageSize: pageSize,
+    currentPage: currentPage,
     startBirthDate: startBirthDate,
     endBirthDate: endBirthDate,
     selectedUserId: selectedUserId,
@@ -267,8 +265,8 @@ function App({ api }: Props) {
     getUser: api.getUser,
     setSortedByUsername: setSortedByUsername,
     setSearchByUsername: setSearchByUsername,
-    setLimit: setLimit,
-    setSkip: setSkip,
+    setPageSize: setPageSize,
+    setCurrentPage: setCurrentPage,
     setStartBirthDate: setStartBirthDate,
     setEndBirthDate: setEndBirthDate,
     setSelectedUserId: setSelectedUserId,

@@ -16,7 +16,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {  useState } from "react";
 import { displayAlert } from "@/components/ui/custom-alert";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -39,8 +38,7 @@ import {
 
 export default function MasterPage() {
 
-    const { birthsPerYear, size, limit, setSearchByUsername, setSortedByUsername, setSkip, setLimit, startBirthDate, endBirthDate, setStartBirthDate, setEndBirthDate, users, selectedUserId, deleteProduct } = useUserStore();
-    const [currentPage, setCurrentPage] = useState(0);
+    const { birthsPerYear, size, pageSize, currentPage, setSearchByUsername, setSortedByUsername, setCurrentPage, setPageSize, startBirthDate, endBirthDate, setStartBirthDate, setEndBirthDate, users, selectedUserId, deleteProduct } = useUserStore();
 
     function handleSearchByUsername() {
         const input = document.getElementById("myInput") as HTMLInputElement;
@@ -57,20 +55,19 @@ export default function MasterPage() {
             return;
         }
         setCurrentPage(page);
-        setSkip(page * limit);
+    
     }
 
     function handleNextPage() {
         const page = currentPage + 1;
         const alertContainer = document.getElementById("alert-container");
-        if (page >= Math.ceil(size / limit)) {
+        if (page >= Math.ceil(size / pageSize)) {
             if (alertContainer)
                 displayAlert(alertContainer, "warning", "There are no more pages!");
             return;
         }
 
         setCurrentPage(page);
-        setSkip(page * limit);
     }
 
 
@@ -115,11 +112,8 @@ export default function MasterPage() {
         color: 'white'
     };
 
-    var numbersPerPageToBeSelected = [5];
-    for (let i = 10; i <= size; i += 5) {
-        numbersPerPageToBeSelected.push(i);
-    }
-
+    var numbersPerPageToBeSelected = [5, 10, 15];
+   
     const handleDeleteProduct = async (productId: number) => {
         const alertContainer = document.getElementById("alert-container");
         try {
@@ -180,7 +174,7 @@ export default function MasterPage() {
                 <div className="flex w-full mt-8 justify-between z-10">
                     <Button data-testid="prev-btn" onClick={handlePreviousPage} className="ml-10" variant={"pagination"}>Previous Page</Button>
                     <div className="flex justify-center">
-                        <p className="text-white pr-6">Count:{limit}</p>
+                        <p className="text-white pr-6">Count:{pageSize}</p>
                         <Button data-testid="sort-btn" onClick={() => setSortedByUsername("ascending")} className="mr-2" variant={"pagination"}>Sort by username</Button>
                         <Input data-testid="search-test" id="myInput" type="text" placeholder="Search user..." onChange={handleSearchByUsername} />
                         <DropdownMenu >
@@ -193,7 +187,7 @@ export default function MasterPage() {
                                 <DropdownMenuRadioGroup>
                                     {
                                         numbersPerPageToBeSelected.map((numberPerPage) => (
-                                            <DropdownMenuRadioItem key={numberPerPage} data-testid="dropdown-item-test-id" value={numberPerPage.toString()} onClick={() => { setLimit(numberPerPage) }}>
+                                            <DropdownMenuRadioItem key={numberPerPage} data-testid="dropdown-item-test-id" value={numberPerPage.toString()} onClick={() => { setPageSize(numberPerPage) }}>
                                                 {numberPerPage}
                                             </DropdownMenuRadioItem>
                                         ))

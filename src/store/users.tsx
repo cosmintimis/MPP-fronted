@@ -7,8 +7,8 @@ type UserStore = {
     size: number;
     sortedByUsername: string;
     searchByUsername: string;
-    limit: number;
-    skip: number;
+    pageSize: number;
+    currentPage: number;
     startBirthDate: Date | undefined;
     endBirthDate: Date | undefined;
     addUser: (user: Omit<User, 'id'>) => Promise<void>;
@@ -17,8 +17,8 @@ type UserStore = {
     getUser: (userId: number) => Promise<User | undefined>;
     setSortedByUsername: (sortedByUsername: string) => void;
     setSearchByUsername: (searchByUsername: string) => void;
-    setLimit: (limit: number) => void;
-    setSkip: (skip: number) => void;
+    setPageSize: (pageSize: number) => void;
+    setCurrentPage: (currentPage: number) => void;
     setStartBirthDate: (startBirthDate: Date) => void;
     setEndBirthDate: (endBirthDate: Date) => void;
     selectedUserId: number;
@@ -33,8 +33,8 @@ const UserStoreContext = createContext<UserStore>({
     birthsPerYear: {},
     sortedByUsername: '',
     searchByUsername: '',
-    limit: 0,
-    skip: 0,
+    pageSize: 0,
+    currentPage: 0,
     startBirthDate: undefined,
     endBirthDate: undefined,
     addUser: async () => { },
@@ -43,8 +43,8 @@ const UserStoreContext = createContext<UserStore>({
     getUser: async () => ({} as User),
     setSortedByUsername: () => { },
     setSearchByUsername: () => { },
-    setLimit: () => { },
-    setSkip: () => { },
+    setPageSize: () => { },
+    setCurrentPage: () => { },
     setStartBirthDate: () => { },
     setEndBirthDate: () => { },
     selectedUserId: -1,

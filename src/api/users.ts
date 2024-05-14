@@ -3,8 +3,8 @@ import axios from "axios";
 
 const BASE_URL = 'http://localhost:8080';
 
-async function getUsers(sortedByUsername: string, searchByUsername: string, limit: number, skip: number, startBirthDate: string, endBirthDate: string ): Promise<UserListWithSize> {
-    const response = await axios(`${BASE_URL}/api/users?sortedByUsername=${sortedByUsername}&searchByUsername=${searchByUsername}&limit=${limit}&skip=${skip}&startBirthDate=${startBirthDate}&endBirthDate=${endBirthDate}`, { method: 'GET' });
+async function getUsers(sortedByUsername: string, searchByUsername: string, pageSize: number, currentPage: number, startBirthDate: string, endBirthDate: string ): Promise<UserListWithSize> {
+    const response = await axios(`${BASE_URL}/api/users?sortedByUsername=${sortedByUsername}&searchByUsername=${searchByUsername}&pageSize=${pageSize}&currentPage=${currentPage}&startBirthDate=${startBirthDate}&endBirthDate=${endBirthDate}`, { method: 'GET' });
     const users = response.data.users.map((user: any) => {
         return {
             ...user,
