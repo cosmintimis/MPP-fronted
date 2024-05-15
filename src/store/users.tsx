@@ -2,6 +2,7 @@ import { Product, User } from "@/constants/user";
 import { createContext, useContext } from "react";
 
 type UserStore = {
+    isAuthenticated: boolean;
     users: User[];
     birthsPerYear: { [key: string]: number };
     size: number;
@@ -26,8 +27,10 @@ type UserStore = {
     addProduct: (product: Omit<Product, 'id'>, userId: number) => Promise<void>;
     deleteProduct: (productId: number) => Promise<void>;
     updateProduct: (product: Product) => Promise<void>;
+    setIsAuthenticated: (isAuthenticated: boolean) => void;
 }
 const UserStoreContext = createContext<UserStore>({
+    isAuthenticated: false,
     users: [],
     size: 0,
     birthsPerYear: {},
@@ -49,9 +52,10 @@ const UserStoreContext = createContext<UserStore>({
     setEndBirthDate: () => { },
     selectedUserId: -1,
     setSelectedUserId: () => { },
-    addProduct: async () => {},
+    addProduct: async () => { },
     deleteProduct: async () => { },
     updateProduct: async () => { },
+    setIsAuthenticated: () => { },
 });
 
 export default UserStoreContext;

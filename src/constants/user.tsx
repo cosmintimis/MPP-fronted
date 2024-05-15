@@ -15,13 +15,13 @@ export type User = {
     rating: number;
     address: string;
     products: Product[];
+    roles: string[];
 };
 
 export type UserListWithSize = {
     users: User[];
     size: number;
 };
-
 // export var USERS: User[] = [
 //     {
 //         id: 1,

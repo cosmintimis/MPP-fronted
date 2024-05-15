@@ -32,13 +32,13 @@ export default function AddUserPage() {
     const [date, setDate] = React.useState<Date | undefined>(new Date());
 
     const formSchema = z.object({
-        username: z.string().min(6, {message: 'Username must be at least 6 characters long'}),
-        email: z.string().min(1, {message: 'Email is required'}).email('Invalid email address'),
-        password: z.string().min(6, {message: 'Password must be at least 6 characters long'}),
-        avatar: z.string().min(1, {message: 'Avatar is required'}),
+        username: z.string().min(6, { message: 'Username must be at least 6 characters long' }),
+        email: z.string().min(1, { message: 'Email is required' }).email('Invalid email address'),
+        password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
+        avatar: z.string().min(1, { message: 'Avatar is required' }),
         birthdate: z.date(),
-        rating: z.coerce.number().refine((val) => val > 0 && val <= 10, {message: 'Rating must be between 0 and 10'}),
-        address: z.string().min(1, {message: 'Address is required'})
+        rating: z.coerce.number().refine((val) => val > 0 && val <= 10, { message: 'Rating must be between 0 and 10' }),
+        address: z.string().min(1, { message: 'Address is required' })
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -58,12 +58,13 @@ export default function AddUserPage() {
     async function addEntity(values: z.infer<typeof formSchema>) {
         const alertContainer = document.getElementById("alert-container");
 
-       await addUser(
+        await addUser(
             {
-            ...values,
-            products: []
+                ...values,
+                products: [],
+                roles: [],
             }
-       ); 
+        );
         if (alertContainer) {
             displayAlert(alertContainer, "success", "User added successfully");
         }
@@ -91,7 +92,7 @@ export default function AddUserPage() {
                             <FormField
                                 control={form.control}
                                 name="username"
-                                render={({ field,  }) => (
+                                render={({ field, }) => (
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Username</FormLabel>
                                         <FormControl className="w-80">
@@ -221,7 +222,7 @@ export default function AddUserPage() {
                                 <PlusCircledIcon className="w-6 h-6 mr-1" />
                                 Add
                             </Button>
-                            <Link to={"/"} data-testid="link-home-page" className="text-white underline mt-4 pl-20">Back to home</Link>
+                            <Link to={"/home"} data-testid="link-home-page" className="text-white underline mt-4 pl-20">Back to home</Link>
                         </form>
                     </Form>
                 </div>

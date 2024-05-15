@@ -17,19 +17,19 @@ import { SparklesCore } from "@/components/ui/sparkles";
 import { Link, useParams } from "react-router-dom";
 import { displayAlert } from "@/components/ui/custom-alert";
 import { useUserStore } from "@/store/users";
-import {useEffect} from "react";
+import { useEffect } from "react";
 
 export default function AddEditProductPage() {
     const { productId } = useParams<{ productId: string }>();
-    const {selectedUserId, users, addProduct, updateProduct} = useUserStore();
+    const { selectedUserId, users, addProduct, updateProduct } = useUserStore();
 
     const userIndex = users.findIndex(user => user.id === selectedUserId);
-    
-   
+
+
     const formSchema = z.object({
-        name: z.string().min(1, {message: 'Avatar is required'}),
-        description: z.string().min(1, {message: 'Avatar is required'}),
-        price: z.coerce.number().positive({message: 'Price must be a positive number'}),
+        name: z.string().min(1, { message: 'Avatar is required' }),
+        description: z.string().min(1, { message: 'Avatar is required' }),
+        price: z.coerce.number().positive({ message: 'Price must be a positive number' }),
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -37,14 +37,14 @@ export default function AddEditProductPage() {
     });
 
     async function updateProductDefault() {
-        if (!productId){
+        if (!productId) {
             form.reset({
                 name: '',
                 description: '',
                 price: 0,
             });
         }
-        else{
+        else {
             const productIndex = users[userIndex].products.findIndex(product => product.id === parseInt(productId));
             const product = users[userIndex].products[productIndex];
             form.reset({
@@ -53,7 +53,7 @@ export default function AddEditProductPage() {
                 price: parseFloat(product.price.toFixed(2)),
             });
         }
-            
+
     }
 
     useEffect(() => {
@@ -64,16 +64,16 @@ export default function AddEditProductPage() {
         const alertContainer = document.getElementById("alert-container");
 
 
-        if(!productId){
+        if (!productId) {
             await addProduct(values, selectedUserId);
         }
-        else{
+        else {
             await updateProduct({
                 id: parseInt(productId),
                 ...values,
             });
         }
-       
+
         if (alertContainer) {
             displayAlert(alertContainer, "success", "Successfully!");
         }
@@ -101,7 +101,7 @@ export default function AddEditProductPage() {
                             <FormField
                                 control={form.control}
                                 name="name"
-                                render={({ field,  }) => (
+                                render={({ field, }) => (
                                     <FormItem>
                                         <FormLabel className="flex justify-start text-white">Name</FormLabel>
                                         <FormControl className="w-80">
@@ -139,20 +139,20 @@ export default function AddEditProductPage() {
                                 )}
                             />
                             {productId ?
-                             <Button data-testid="submit-update-btn" type="submit" variant={"adding"}>
-                             <UpdateIcon className="w-5 h-5 mr-1" />
-                             Update
-                             </Button>
-                              : <Button
-                              data-testid="submit-add-btn"
-                              className="bg-green-500 hover:bg-green-600 px-10"
-                              type="submit"
+                                <Button data-testid="submit-update-btn" type="submit" variant={"adding"}>
+                                    <UpdateIcon className="w-5 h-5 mr-1" />
+                                    Update
+                                </Button>
+                                : <Button
+                                    data-testid="submit-add-btn"
+                                    className="bg-green-500 hover:bg-green-600 px-10"
+                                    type="submit"
                                 >
-                              <PlusCircledIcon className="w-6 h-6 mr-1" />
-                              Add
-                             </Button>
-                          }
-                            <Link to={"/"} data-testid="link-home-page" className="text-white underline mt-4 pl-20">Back to home</Link>
+                                    <PlusCircledIcon className="w-6 h-6 mr-1" />
+                                    Add
+                                </Button>
+                            }
+                            <Link to={"/home"} data-testid="link-home-page" className="text-white underline mt-4 pl-20">Back to home</Link>
                         </form>
                     </Form>
                 </div>

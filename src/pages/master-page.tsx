@@ -20,9 +20,9 @@ import { displayAlert } from "@/components/ui/custom-alert";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -34,11 +34,13 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-  } from "@/components/ui/table"
+} from "@/components/ui/table"
+import { getCurrentUser } from "@/api/auth";
 
 export default function MasterPage() {
 
     const { birthsPerYear, size, pageSize, currentPage, setSearchByUsername, setSortedByUsername, setCurrentPage, setPageSize, startBirthDate, endBirthDate, setStartBirthDate, setEndBirthDate, users, selectedUserId, deleteProduct } = useUserStore();
+    const currentUser = getCurrentUser();
 
     function handleSearchByUsername() {
         const input = document.getElementById("myInput") as HTMLInputElement;
@@ -55,7 +57,7 @@ export default function MasterPage() {
             return;
         }
         setCurrentPage(page);
-    
+
     }
 
     function handleNextPage() {
@@ -113,7 +115,7 @@ export default function MasterPage() {
     };
 
     var numbersPerPageToBeSelected = [5, 10, 15];
-   
+
     const handleDeleteProduct = async (productId: number) => {
         const alertContainer = document.getElementById("alert-container");
         try {
@@ -123,32 +125,39 @@ export default function MasterPage() {
         } catch (error) {
             console.error("Error deleting item:", error);
         }
-      };
-    
+    };
+
     function populateProductsTable() {
-        if(selectedUserId === -1)
+        if (selectedUserId === -1)
             return;
 
         const userIndex = users.findIndex((user) => user.id === selectedUserId);
 
-        if(userIndex === -1)
+        if (userIndex === -1)
             return;
-    
+
         return users[userIndex].products.map((product) => (
             <TableRow key={product.id}>
                 <TableCell>{product.name}</TableCell>
                 <TableCell>{product.description}</TableCell>
                 <TableCell>{product.price.toFixed(2)}</TableCell>
-                <TableCell>
-                    <Link to={`/addEditProduct/${product.id}`} className={buttonVariants({ variant: "default" })}>Edit</Link>
-                </TableCell>
-                <TableCell>
-                    <Button onClick={() => handleDeleteProduct(product.id)}  variant={"destructive"}>Delete</Button>
-                </TableCell>
-                
-                
+                {currentUser?.roles.includes("ROLE_ADMIN") && (
+                    <>
+                        <TableCell>
+                            <Link to={`/addEditProduct/${product.id}`} className={buttonVariants({ variant: "default" })}>Edit</Link>
+                        </TableCell>
+                        <TableCell>
+                            <Button onClick={() => handleDeleteProduct(product.id)} variant={"destructive"}>Delete</Button>
+                        </TableCell>
+                    </>
+                )}
             </TableRow>
         ))
+    }
+
+    function handleLogout() {
+        localStorage.clear();
+        window.location.href = "/";
     }
 
     return (
@@ -168,9 +177,11 @@ export default function MasterPage() {
                 <div className="relative w-full h-[350px] z-10">
                     <AutoplayCarousel />
                 </div>
-                <div className="flex w-full mt-8 justify-center z-10">
-                    <Link to={'/addUser'} data-testid="add-new-user-page" className={buttonVariants({ variant: "adding" })}>Add User</Link>
-                </div>
+                {currentUser?.roles.includes("ROLE_ADMIN") && (
+                    <div className="flex w-full mt-8 justify-center z-10">
+                        <Link to={'/addUser'} data-testid="add-new-user-page" className={buttonVariants({ variant: "adding" })}>Add User</Link>
+                    </div>
+                )}
                 <div className="flex w-full mt-8 justify-between z-10">
                     <Button data-testid="prev-btn" onClick={handlePreviousPage} className="ml-10" variant={"pagination"}>Previous Page</Button>
                     <div className="flex justify-center">
@@ -197,85 +208,88 @@ export default function MasterPage() {
                         </DropdownMenu>
                     </div>
                     <div className="mx-4 flex justify-around">
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-[200px] justify-start text-left font-normal mr-2",
-                                            !startBirthDate && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {startBirthDate ? format(startBirthDate, "PPP") : <span>Pick a start birth date</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={startBirthDate}
-                                        onSelect={(date) => {
-                                            if(date)
-                                                setStartBirthDate(date);
-                                        }}
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-[200px] justify-start text-left font-normal",
-                                            !endBirthDate && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {endBirthDate ? format(endBirthDate, "PPP") : <span>Pick an end birth date</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={endBirthDate}
-                                        onSelect={(date) => {
-                                            if(date)
-                                                setEndBirthDate(date);
-                                               
-                                        }}
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-[200px] justify-start text-left font-normal mr-2",
+                                        !startBirthDate && "text-muted-foreground"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {startBirthDate ? format(startBirthDate, "PPP") : <span>Pick a start birth date</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                                <Calendar
+                                    mode="single"
+                                    selected={startBirthDate}
+                                    onSelect={(date) => {
+                                        if (date)
+                                            setStartBirthDate(date);
+                                    }}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-[200px] justify-start text-left font-normal",
+                                        !endBirthDate && "text-muted-foreground"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {endBirthDate ? format(endBirthDate, "PPP") : <span>Pick an end birth date</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                                <Calendar
+                                    mode="single"
+                                    selected={endBirthDate}
+                                    onSelect={(date) => {
+                                        if (date)
+                                            setEndBirthDate(date);
 
-                       </div>
+                                    }}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+
+                    </div>
+                    <Button data-testid="next-btn" onClick={handleLogout} className="mr-10" variant={"pagination"}>Log out</Button>
                     <Button data-testid="next-btn" onClick={handleNextPage} className="mr-10" variant={"pagination"}>Next Page</Button>
                 </div>
                 <div className="relative w-full flex item-center justify justify-around mt-20">
-                <div className="w-[500px] text-white z-10 max-h-[300px] overflow-scroll">
-                    <Table>
-                        <TableCaption>Products of selected user.</TableCaption>
-                        <TableCaption className="mb-10">
-                            <Link to={'/addEditProduct'} className={buttonVariants({ variant: "adding" })}>Add Product</Link>
-                        </TableCaption>
-                        <TableHeader>
-                            <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Description</TableHead>
-                            <TableHead>Price</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                        {
-                            populateProductsTable()
-                        }
-                        </TableBody>
-                    </Table>
-                </div>
-                <div data-testid="bar-chart-test-id" className="h-[300px] w-[500px] mt-8 z-10">
-                    <BarChart chartData={userDataBarChart} chartOptions={chartOptions} />
-                </div>
+                    <div className="w-[500px] text-white z-10 max-h-[300px] overflow-scroll">
+                        <Table>
+                            <TableCaption>Products of selected user.</TableCaption>
+                            {currentUser?.roles.includes("ROLE_ADMIN") && (
+                                <TableCaption className="mb-10">
+                                    <Link to={'/addEditProduct'} className={buttonVariants({ variant: "adding" })}>Add Product</Link>
+                                </TableCaption>
+                            )}
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Description</TableHead>
+                                    <TableHead>Price</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {
+                                    populateProductsTable()
+                                }
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <div data-testid="bar-chart-test-id" className="h-[300px] w-[500px] mt-8 z-10">
+                        <BarChart chartData={userDataBarChart} chartOptions={chartOptions} />
+                    </div>
                 </div>
                 <div className="absolute top-0 h-[75px] hidden justify-center items-center w-full z-10" id="alert-container" data-testid="alert-container-test"></div>
             </div>

@@ -37,13 +37,13 @@ export default function UpdateUserPage() {
 
 
     const formSchema = z.object({
-        username: z.string().min(6, {message: 'Username must be at least 6 characters long'}),
-        email: z.string().min(1, {message: 'Email is required'}).email('Invalid email address'),
-        password: z.string().min(6, {message: 'Password must be at least 6 characters long'}),
-        avatar: z.string().min(1, {message: 'Avatar is required'}),
+        username: z.string().min(6, { message: 'Username must be at least 6 characters long' }),
+        email: z.string().min(1, { message: 'Email is required' }).email('Invalid email address'),
+        password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
+        avatar: z.string().min(1, { message: 'Avatar is required' }),
         birthdate: z.date(),
-        rating: z.coerce.number().refine((val) => val > 0 && val <= 10, {message: 'Rating must be between 0 and 10'}),
-        address: z.string().min(1, {message: 'Address is required'})
+        rating: z.coerce.number().refine((val) => val > 0 && val <= 10, { message: 'Rating must be between 0 and 10' }),
+        address: z.string().min(1, { message: 'Address is required' })
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -57,10 +57,10 @@ export default function UpdateUserPage() {
 
         const index = users.findIndex((user) => user.id === parseInt(userId));
 
-        if(index === -1){
+        if (index === -1) {
             user = await getUser(parseInt(userId));
         }
-        else{
+        else {
             user = users.find((user) => user.id === parseInt(userId));
         }
 
@@ -89,7 +89,8 @@ export default function UpdateUserPage() {
         await updateUser({
             id: parseInt(userId),
             ...values,
-            products: currentUser?.products || []
+            products: currentUser?.products || [],
+            roles: currentUser?.roles || [],
         });
 
         if (alertContainer) {
@@ -247,7 +248,7 @@ export default function UpdateUserPage() {
                                 <UpdateIcon className="w-5 h-5 mr-1" />
                                 Update
                             </Button>
-                            <Link to={"/"} data-testid="link-home-page" className="text-white underline mt-4 pl-20">Back to home</Link>
+                            <Link to={"/home"} data-testid="link-home-page" className="text-white underline mt-4 pl-20">Back to home</Link>
                         </form>
                     </Form>
 
