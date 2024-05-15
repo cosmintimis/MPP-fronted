@@ -118,7 +118,7 @@ function App({ api }: Props) {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        await fetch('http://localhost:8080/api/health-check');
+        await fetch('https://serverpp.yellowpond-bda2a511.westeurope.azurecontainerapps.io/api/health-check');
         if (serverStatus === "Offline") {
           setServerStatus("Online");
           if (isAuthenticated) {

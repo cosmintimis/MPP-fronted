@@ -37,6 +37,8 @@ export function SignupPage() {
                     icon: "error",
                     title: "Oops...",
                     text: "Please fill out all fields",
+                    showConfirmButton: false,
+                    timer: 1500,
                 });
                 return;
             }

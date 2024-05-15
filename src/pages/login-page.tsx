@@ -40,6 +40,8 @@ export function LoginPage() {
         icon: "error",
         title: "Oops...",
         text: "Invalid username or password",
+        showConfirmButton: false,
+        timer: 1500,
       });
     }
   }

@@ -1,7 +1,7 @@
 import { User, UserListWithSize } from "@/constants/user";
 import axios from "axios";
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'https://serverpp.yellowpond-bda2a511.westeurope.azurecontainerapps.io';
 
 async function getUsers(sortedByUsername: string, searchByUsername: string, pageSize: number, currentPage: number, startBirthDate: string, endBirthDate: string ): Promise<UserListWithSize> {
     const response = await axios(`${BASE_URL}/api/users?sortedByUsername=${sortedByUsername}&searchByUsername=${searchByUsername}&pageSize=${pageSize}&currentPage=${currentPage}&startBirthDate=${startBirthDate}&endBirthDate=${endBirthDate}`, { method: 'GET',  headers: { 

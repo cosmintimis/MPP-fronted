@@ -1,7 +1,7 @@
 import { User } from "@/constants/user";
 import axios from "axios";
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'https://serverpp.yellowpond-bda2a511.westeurope.azurecontainerapps.io';
 
 export async function login(username: string, password: string): Promise<void> {
     const response = await axios(`${BASE_URL}/api/auth/signin`, { method: 'POST', data: { username, password } });
