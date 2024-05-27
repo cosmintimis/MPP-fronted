@@ -141,7 +141,7 @@ export default function MasterPage() {
                 <TableCell>{product.name}</TableCell>
                 <TableCell>{product.description}</TableCell>
                 <TableCell>{product.price.toFixed(2)}</TableCell>
-                {currentUser?.roles.includes("ROLE_ADMIN") && (
+                {(currentUser?.roles.includes("ROLE_ADMIN") || currentUser?.roles.includes("ROLE_MANAGER")) && (
                     <>
                         <TableCell>
                             <Link to={`/addEditProduct/${product.id}`} className={buttonVariants({ variant: "default" })}>Edit</Link>
@@ -268,7 +268,7 @@ export default function MasterPage() {
                     <div className="w-[500px] text-white z-10 max-h-[300px] overflow-scroll">
                         <Table>
                             <TableCaption>Products of selected user.</TableCaption>
-                            {currentUser?.roles.includes("ROLE_ADMIN") && (
+                            {(currentUser?.roles.includes("ROLE_ADMIN") || currentUser?.roles.includes("ROLE_MANAGER")) && (
                                 <TableCaption className="mb-10">
                                     <Link to={'/addEditProduct'} className={buttonVariants({ variant: "adding" })}>Add Product</Link>
                                 </TableCaption>

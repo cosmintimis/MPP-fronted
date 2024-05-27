@@ -1,7 +1,8 @@
 import { User } from "@/constants/user";
 import axios from "axios";
 
-const BASE_URL = 'https://serverpp.yellowpond-bda2a511.westeurope.azurecontainerapps.io';
+// const BASE_URL = 'https://serverpp.yellowpond-bda2a511.westeurope.azurecontainerapps.io';
+const BASE_URL = 'https://nimsocapi.azurewebsites.net';
 
 export async function login(username: string, password: string): Promise<void> {
     const response = await axios(`${BASE_URL}/api/auth/signin`, { method: 'POST', data: { username, password } });
@@ -17,6 +18,7 @@ export async function signup(username: string, email: string, password: string):
 
 export const getCurrentUser = () => {
     const userString = localStorage.getItem('currentUser');
+    console.log(userString);
     if(userString){
         const json = JSON.parse(userString);
         const user: User = {
@@ -24,7 +26,6 @@ export const getCurrentUser = () => {
             username: json.username,
             email: json.email,
             avatar: json.avatar,
-            password: json.password,
             birthdate: new Date(json.birthdate),
             rating: json.rating,
             address: json.address,

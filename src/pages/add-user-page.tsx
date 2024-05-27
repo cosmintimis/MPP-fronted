@@ -62,7 +62,7 @@ export default function AddUserPage() {
             {
                 ...values,
                 products: [],
-                roles: [],
+                roles: ["ROLE_USER"],
             }
         );
         if (alertContainer) {

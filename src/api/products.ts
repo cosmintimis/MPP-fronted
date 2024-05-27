@@ -3,7 +3,8 @@ import axios from "axios";
 
 
 
-const BASE_URL = 'https://serverpp.yellowpond-bda2a511.westeurope.azurecontainerapps.io';
+// const BASE_URL = 'https://serverpp.yellowpond-bda2a511.westeurope.azurecontainerapps.io';
+const BASE_URL = 'https://nimsocapi.azurewebsites.net';
 
 async function addProduct(product: Omit<Product, 'id'>, userId: number): Promise<Product> {
     await axios(`${BASE_URL}/api/products?userId=${userId}`, { method: 'POST', data: product, headers: { 

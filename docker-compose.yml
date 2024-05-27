@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  backend:
+    image: containerregister99.azurecr.io/mppbackend
+    build:
+      context: D:\facultate\YEAR 2\sem 2\mpp\backend\serverApp
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - /tmp
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+
+  frontend:
+    image: containerregister99.azurecr.io/mppfrontend
+    build:
+      context: ../MPP-frontend
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

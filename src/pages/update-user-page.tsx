@@ -39,7 +39,7 @@ export default function UpdateUserPage() {
     const formSchema = z.object({
         username: z.string().min(6, { message: 'Username must be at least 6 characters long' }),
         email: z.string().min(1, { message: 'Email is required' }).email('Invalid email address'),
-        password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
+        // password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
         avatar: z.string().min(1, { message: 'Avatar is required' }),
         birthdate: z.date(),
         rating: z.coerce.number().refine((val) => val > 0 && val <= 10, { message: 'Rating must be between 0 and 10' }),
@@ -68,7 +68,7 @@ export default function UpdateUserPage() {
         form.reset({
             username: user?.username,
             email: user?.email,
-            password: user?.password,
+            // password: user?.password,
             avatar: user?.avatar,
             birthdate: user?.birthdate,
             rating: user?.rating,
@@ -146,7 +146,7 @@ export default function UpdateUserPage() {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
+                            {/* <FormField
                                 control={form.control}
                                 name="password"
                                 render={({ field }) => (
@@ -159,7 +159,7 @@ export default function UpdateUserPage() {
                                         <FormMessage />
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
                             <FormField
                                 control={form.control}
                                 name="avatar"

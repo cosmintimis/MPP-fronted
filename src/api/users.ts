@@ -1,7 +1,8 @@
 import { User, UserListWithSize } from "@/constants/user";
 import axios from "axios";
 
-const BASE_URL = 'https://serverpp.yellowpond-bda2a511.westeurope.azurecontainerapps.io';
+// const BASE_URL = 'https://serverpp.yellowpond-bda2a511.westeurope.azurecontainerapps.io';
+const BASE_URL = 'https://nimsocapi.azurewebsites.net';
 
 async function getUsers(sortedByUsername: string, searchByUsername: string, pageSize: number, currentPage: number, startBirthDate: string, endBirthDate: string ): Promise<UserListWithSize> {
     const response = await axios(`${BASE_URL}/api/users?sortedByUsername=${sortedByUsername}&searchByUsername=${searchByUsername}&pageSize=${pageSize}&currentPage=${currentPage}&startBirthDate=${startBirthDate}&endBirthDate=${endBirthDate}`, { method: 'GET',  headers: { 
@@ -11,7 +12,8 @@ async function getUsers(sortedByUsername: string, searchByUsername: string, page
     const users = response.data.users.map((user: any) => {
         return {
             ...user,
-            birthdate: new Date(user.birthdate)
+            birthdate: new Date(user.birthdate),
+            roles: user.roles.map((role: any) => role.name)
         }
     }
     );
@@ -64,7 +66,8 @@ async function getUser(userId: number): Promise<User> {
     } });
     const user = {
         ...response.data,
-        birthdate: new Date(response.data.birthdate)
+        birthdate: new Date(response.data.birthdate),
+        roles: response.data.roles.map((role: any) => role.name)
     };
     return user;
 }
