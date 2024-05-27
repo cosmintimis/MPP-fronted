@@ -18,7 +18,6 @@ export async function signup(username: string, email: string, password: string):
 
 export const getCurrentUser = () => {
     const userString = localStorage.getItem('currentUser');
-    console.log(userString);
     if(userString){
         const json = JSON.parse(userString);
         const user: User = {
